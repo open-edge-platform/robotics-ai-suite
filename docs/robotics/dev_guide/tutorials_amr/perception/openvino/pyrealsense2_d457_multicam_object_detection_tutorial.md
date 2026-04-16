@@ -130,7 +130,26 @@ sudo apt install -y ros-humble-pyrealsense2-ai-demo
 ::::
 
 ### Setup uv venv
-Go to /opt/ros/`ros-distro`/share/pyrealsense2-ai-demo
+
+::::{tab-set}
+:::{tab-item} **Jazzy**
+:sync: jazzy
+
+
+```bash
+cd /opt/ros/jazzy/share/pyrealsesne2-ai-demo
+```
+
+:::
+:::{tab-item} **Humble**
+:sync: humble
+
+```bash
+cd /opt/ros/humble/share/pyrealsense2-ai-demo
+```
+
+:::
+::::
 
 ```bash
 uv sync
@@ -160,6 +179,10 @@ cd /opt/ros/jazzy/share/pyrealsense2-ai-demo
 source /opt/ros/jazzy/setup.bash
 ```
 
+```bash
+source /opt/intel/oneapi/setvars.sh
+```
+
 **D457:**
 
 ```bash
@@ -177,6 +200,10 @@ uv run src/pyrealsense2_ai_demo_launcher.py --config=config/config_isx031_4camer
 :::
 :::{tab-item} **Humble**
 :sync: humble
+
+```bash
+source /opt/intel/oneapi/setvars.sh
+```
 
 ```bash
 # Source the ros2 humble
