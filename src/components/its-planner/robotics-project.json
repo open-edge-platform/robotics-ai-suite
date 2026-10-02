@@ -1,0 +1,38 @@
+{
+  "format_version": 1,
+  "ci": {
+    "manifest_namespace": "its-planner",
+    "changelog_components": [
+      "its_planner",
+      "send_localization",
+      "collab_slam",
+      "relocalization"
+    ],
+    "package_components": [
+      {
+        "path": "its_planner",
+        "ros_package": "its_planner"
+      },
+      {
+        "path": "send_localization",
+        "ros_package": "send_localization"
+      },
+      {
+        "path": "collab_slam/nav2_bringup_collab",
+        "ros_package": "nav2_bringup_collab"
+      },
+      {
+        "path": "relocalization/pose_checker",
+        "ros_package": "pose_checker"
+      },
+      {
+        "path": "relocalization/reloc_benchmarking",
+        "ros_package": "reloc_benchmarking"
+      },
+      {
+        "path": "relocalization/relocalization_bringup",
+        "ros_package": "relocalization_bringup"
+      }
+    ]
+  }
+}

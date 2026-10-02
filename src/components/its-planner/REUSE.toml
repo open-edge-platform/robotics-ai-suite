@@ -6,13 +6,15 @@ version = 1
 
 [[annotations]]
 path = [
-    "*/*/debian/**",
+    "src/**/debian/**",
     "docs/images/*",
-    "relocalization/relocalization_bringup/saved_poses.txt",
-    "collab_slam/map/*",
-    "collab_slam/nav2_bringup_collab/maps/turtlebot3_world.pgm",
-    "collab_slam/nav2_bringup_collab/urdf/turtlebot3_waffle.urdf",
-    "collab_slam/nav2_bringup_collab/worlds/*.model",
+    "robotics-project.json",
+    ".bandit",
+    "src/relocalization/relocalization_bringup/saved_poses.txt",
+    "src/collab_slam/map/*",
+    "src/collab_slam/nav2_bringup_collab/maps/turtlebot3_world.pgm",
+    "src/collab_slam/nav2_bringup_collab/urdf/turtlebot3_waffle.urdf",
+    "src/collab_slam/nav2_bringup_collab/worlds/*.model",
     "3rd_party/patches/*/0001-msgs-add-global-Localization-server.patch",
 ]
 SPDX-FileCopyrightText = "2025 Intel Corporation"

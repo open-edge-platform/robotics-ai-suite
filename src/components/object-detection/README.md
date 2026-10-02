@@ -22,23 +22,41 @@ Prepare the target system following the [official documentation](https://develop
 
 ### Build
 
-To build debian packages, export `ROS_DISTRO` env variable to desired platform and run `make package` command. After build process successfully finishes, built packages will be available in the root directory. The following command is an example for `Jazzy` distribution.
+Packages are built natively with CMake and CPack. Export the `ROS_DISTRO` env
+variable for the desired platform and run `make package`. The generated Debian
+packages are written to `build/debian-packages/packages/`. The following command
+is an example for the `Jazzy` distribution.
 
 ```bash
 ROS_DISTRO=jazzy make package
 ```
 
+The build reads each package's declared build dependencies from its
+`CMakeLists.txt`. To install them before building (for example in a fresh
+container), run:
+
+```bash
+ROS_DISTRO=jazzy make install-debian-build-deps
+```
+
 You can list all built packages:
 
 ```bash
-ls | grep -i .deb
+ls build/debian-packages/packages/*.deb
 ```
 
 ```text
 ros-jazzy-object-detection-tutorial_2.3-1_amd64.deb
 ros-jazzy-segmentation-realsense-tutorial_2.3-1_amd64.deb
-ros-jazzy-yolo-msgs_2.3-1_amd64.deb
-ros-jazzy-yolo_2.3-1_amd64.deb
+ros-jazzy-openvino-yolov8-msgs_2.3-1_amd64.deb
+ros-jazzy-openvino-yolov8_2.3-1_amd64.deb
+```
+
+To build inside a ROS container on the host (installs build dependencies
+automatically):
+
+```bash
+ROS_DISTRO=jazzy make container-package
 ```
 
 To clean all build artifacts:
@@ -65,10 +83,10 @@ Finally, install the Debian packages that were built via `make package`:
 
 ```bash
 sudo apt update
-sudo apt install ./ros-$(ROS_DISTRO)-object-detection-tutorial_*_amd64.deb
-sudo apt install ./ros-$(ROS_DISTRO)-segmentation-realsense-tutorial_*_amd64.deb
-sudo apt install ./ros-$(ROS_DISTRO)-yolo-msgs_*_amd64.deb
-sudo apt install ./ros-$(ROS_DISTRO)-yolo_*_amd64.deb
+sudo apt install ./build/debian-packages/packages/ros-$(ROS_DISTRO)-object-detection-tutorial_*_amd64.deb
+sudo apt install ./build/debian-packages/packages/ros-$(ROS_DISTRO)-segmentation-realsense-tutorial_*_amd64.deb
+sudo apt install ./build/debian-packages/packages/ros-$(ROS_DISTRO)-openvino-yolov8-msgs_*_amd64.deb
+sudo apt install ./build/debian-packages/packages/ros-$(ROS_DISTRO)-openvino-yolov8_*_amd64.deb
 ```
 
 ### Test
@@ -77,6 +95,12 @@ To run unit tests (implemented with `colcon`) execute the below command with tar
 
 ```bash
 ROS_DISTRO=jazzy make test
+```
+
+Tests can also be run inside a ROS container on the host:
+
+```bash
+ROS_DISTRO=jazzy make container-test
 ```
 
 ### Development
@@ -102,15 +126,23 @@ make
 ```
 
 ```text
-Target               Description
-------               -----------
-clean                Clean up all build artifacts
-license-check        Perform a REUSE license check using docker container https://hub.docker.com/r/fsfe/reuse
-lint                 Run all sub-linters using super-linter (using linters defined for this repo only)
-lint-all             Run super-linter over entire repository (auto-detects code to lint)
-package              Build Debian packages
-source-package       Create source package tarball
-test                 Test code using colcon
+Target                   Description
+------                   -----------
+build                    Build selected ROS packages with Colcon for local development
+clean                    Remove local build, install, log, and package artifacts
+container-package        Build Debian packages inside a ROS container on the host
+container-test           Build & test with Colcon inside a ROS container on the host
+debian-build-deps        Generate Debian Build-Depends control files without configuring components
+install-debian-build-deps Install generated Debian Build-Depends with APT
+license-check            Perform a REUSE license check using docker container https://hub.docker.com/r/fsfe/reuse
+lint                     Run all sub-linters using super-linter (using linters defined for this repo only)
+lint-all                 Run super-linter over entire repository (auto-detects code to lint)
+lint-bash                Run Bash linter using super-linter
+lint-clang               Run clang-format linter using super-linter
+lint-python              Run Python linters (pylint, flake8) using super-linter
+package                  Build native Debian packages using CMake + CPack
+source-package           Create source package tarball
+test                     Build & test with Colcon
 ```
 
 ## Usage

@@ -1,0 +1,30 @@
+{
+  "format_version": 1,
+  "ci": {
+    "manifest_namespace": "objectdetection",
+    "changelog_components": [
+      "object_detection_tutorial",
+      "segmentation_realsense_tutorial",
+      "yolo_msgs",
+      "yolo"
+    ],
+    "package_components": [
+      {
+        "path": "object_detection_tutorial",
+        "ros_package": "object_detection_tutorial"
+      },
+      {
+        "path": "segmentation_realsense_tutorial",
+        "ros_package": "segmentation_realsense_tutorial"
+      },
+      {
+        "path": "yolo_msgs",
+        "ros_package": "yolo_msgs"
+      },
+      {
+        "path": "yolo",
+        "ros_package": "yolo"
+      }
+    ]
+  }
+}

@@ -1,72 +1,150 @@
 # Copyright (C) 2025 Intel Corporation
+#
 # SPDX-License-Identifier: Apache-2.0
 
-.PHONY: build clean
+SHELL := bash -eu -o pipefail
+
+COMMIT := $(shell git rev-parse --short HEAD)
+DATE := $(shell git log -1 --format=%cd --date=format:"%Y%m%d")
+VERSION := $(COMMIT)-$(DATE)
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 ROS_DISTRO ?= humble
 
+# Map ROS_DISTRO to Ubuntu codename and OpenVINO distro tag
 ifeq ($(ROS_DISTRO),humble)
+	UBUNTU_CODENAME := jammy
 	OPENVINO_DISTRO := ubuntu22
 else
+	UBUNTU_CODENAME := noble
 	OPENVINO_DISTRO := ubuntu24
 endif
 
-# Version info for packaging
-COMMIT := $(shell git rev-parse --short HEAD)
-DATE := $(shell git log -1 --format=%cd --date=format:"%Y%m%d")
-VERSION := $(COMMIT)-$(DATE)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	MAKE_JOBS ?= $(shell sysctl -n hw.ncpu)
+else
+	MAKE_JOBS ?= $(shell nproc)
+endif
 
-PACKAGES := segmentation_realsense_tutorial object_detection_tutorial yolov8/src/yolo_msgs yolov8/src/yolo
+.DEFAULT_GOAL := help
+.PHONY: build clean help license-check lint lint-all lint-bash lint-clang lint-python lint-yaml lint-githubactions lint-markdown lint-json package test source-package debian-build-deps install-debian-build-deps openvino-apt-source container-package container-test
 
-.PHONY: license-check package test clean source-package lint lint-all
+PROJECT_DEFINITION ?= $(ROOT_DIR)/robotics-project.json
+PACKAGE_VERSION_SUFFIX ?=
+PACKAGE_COMPONENTS := $(shell PROJECT_DEFINITION="$(PROJECT_DEFINITION)" ROOT_DIR="$(ROOT_DIR)" python3 -c 'import json, os, pathlib, re; project = json.loads(pathlib.Path(os.environ["PROJECT_DEFINITION"]).read_text(encoding="utf-8")); components = project.get("ci", {}).get("package_components", []); root = pathlib.Path(os.environ["ROOT_DIR"]) / "src"; valid = project.get("format_version") == 1 and isinstance(components, list) and components and all(isinstance(component, dict) and isinstance(component.get("path"), str) and re.fullmatch(r"[a-z0-9][a-z0-9_-]*", component["path"]) and (root / component["path"]).is_dir() and ("ros_package" not in component or isinstance(component["ros_package"], str) and re.fullmatch(r"[a-z0-9][a-z0-9_]*", component["ros_package"])) for component in components); (_ for _ in ()).throw(SystemExit("Invalid package components in project definition")) if not valid else None; print(",".join(component["path"] for component in components))')
+ROS_PACKAGES := $(shell PROJECT_DEFINITION="$(PROJECT_DEFINITION)" python3 -c 'import json, os, pathlib, re; project = json.loads(pathlib.Path(os.environ["PROJECT_DEFINITION"]).read_text(encoding="utf-8")); components = project.get("ci", {}).get("package_components", []); ros_components = [component for component in components if "ros_package" in component]; valid = project.get("format_version") == 1 and isinstance(components, list) and ros_components and all(isinstance(component, dict) and isinstance(component.get("ros_package"), str) and re.fullmatch(r"[a-z0-9][a-z0-9_]*", component["ros_package"]) for component in ros_components); (_ for _ in ()).throw(SystemExit("Invalid ROS packages in project definition")) if not valid else None; print(" ".join(component["ros_package"] for component in ros_components))')
+# Colcon base path that contains the ROS package sources
+COLCON_BASE_PATHS := src
+PACKAGE_OUTPUT_DIR = $(ROOT_DIR)/build/debian-packages/packages
+BUILD_DEPENDS_OUTPUT_DIR = $(ROOT_DIR)/build/debian-build-deps
+MISSING_BUILD_DEPENDENCIES_FILE = $(BUILD_DEPENDS_OUTPUT_DIR)/missing-dependencies.txt
+CONTAINER_IMAGE ?= amd64/ros:$(ROS_DISTRO)-ros-base
+# Forward host proxy settings so container builds can reach the Intel OpenVINO APT repo
+DOCKER_PROXY_ENV := -e HTTP_PROXY -e HTTPS_PROXY -e NO_PROXY -e http_proxy -e https_proxy -e no_proxy
 
 license-check:
 	@# Help: Perform a REUSE license check using docker container https://hub.docker.com/r/fsfe/reuse
-	@docker run --rm --volume ${ROOT_DIR}:/data fsfe/reuse:5.0.2 lint
+	docker run --rm --volume ${ROOT_DIR}:/data fsfe/reuse:5.0.2 lint
+
+openvino-apt-source:
+	@# Help: Configure the Intel OpenVINO APT repository (needed to resolve the openvino build dependency)
+	@if ! apt-cache policy openvino 2>/dev/null | grep -q Candidate; then \
+		echo "Configuring Intel OpenVINO APT repository for $(OPENVINO_DISTRO)"; \
+		curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+			| gpg --dearmor | tee /usr/share/keyrings/openvino-archive-keyring.gpg > /dev/null; \
+		echo "deb [signed-by=/usr/share/keyrings/openvino-archive-keyring.gpg] https://apt.repos.intel.com/openvino $(OPENVINO_DISTRO) main" \
+			| tee /etc/apt/sources.list.d/intel-openvino.list; \
+		apt-get update -qq; \
+	fi
 
 package:
-	@# Help: Build Debian packages
-	docker run --rm -t --platform linux/amd64 \
-		-v $(ROOT_DIR):/src \
-		-e DEBIAN_FRONTEND=noninteractive \
-		-e ROS_DISTRO=$(ROS_DISTRO) \
-		--pull always \
-		-w /src \
-		amd64/ros:${ROS_DISTRO}-ros-base \
-		bash -c "curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | tee /usr/share/keyrings/openvino-archive-keyring.gpg > /dev/null && \
-			echo \"deb [signed-by=/usr/share/keyrings/openvino-archive-keyring.gpg] https://apt.repos.intel.com/openvino ${OPENVINO_DISTRO} main\" | tee /etc/apt/sources.list.d/intel-openvino.list && \
-			echo -e \"Package: openvino-libraries-dev\nPin: version 2025.3.0*\nPin-Priority: 1001\" | tee /etc/apt/preferences.d/intel-openvino > /dev/null && \
-			echo -e \"\nPackage: openvino\nPin: version 2025.3.0*\nPin-Priority: 1001\" | tee -a /etc/apt/preferences.d/intel-openvino > /dev/null && \
-			echo -e \"\nPackage: ros-${ROS_DISTRO}-openvino-wrapper-lib\nPin: version 2025.3.0*\nPin-Priority: 1002\" | tee -a /etc/apt/preferences.d/intel-openvino > /dev/null && \
-			echo -e \"\nPackage: ros-${ROS_DISTRO}-openvino-node\nPin: version 2025.3.0*\nPin-Priority: 1002\" | tee -a /etc/apt/preferences.d/intel-openvino > /dev/null && \
-			apt -qq update && apt install -y equivs devscripts lld && . /opt/ros/$(ROS_DISTRO)/setup.sh && ./scripts/build.sh"
+	@# Help: Build native Debian packages using CMake + CPack
+	command -v ninja >/dev/null || { echo "Error: Ninja is required. Install ninja-build." >&2; exit 1; }
+	rm -rf $(ROOT_DIR)/build/debian-packages
+	set +u && source /opt/ros/$(ROS_DISTRO)/setup.bash && set -u && \
+	cmake -G Ninja -S $(ROOT_DIR) -B $(ROOT_DIR)/build/debian-packages \
+		-DROS_DISTRO=$(ROS_DISTRO) \
+		-DOBJECTDETECTION_PACKAGE_OUTPUT_DIR=$(PACKAGE_OUTPUT_DIR) \
+		-DOBJECTDETECTION_PACKAGE_COMPONENTS="$(PACKAGE_COMPONENTS)" \
+		-DOBJECTDETECTION_PACKAGE_VERSION_SUFFIX=$(PACKAGE_VERSION_SUFFIX) && \
+	cmake --build $(ROOT_DIR)/build/debian-packages --target package
+
+debian-build-deps:
+	@# Help: Generate Debian Build-Depends control files without configuring components
+	rm -rf $(BUILD_DEPENDS_OUTPUT_DIR) $(ROOT_DIR)/build/debian-build-deps-config
+	cmake -S $(ROOT_DIR) -B $(ROOT_DIR)/build/debian-build-deps-config \
+		-DROS_DISTRO=$(ROS_DISTRO) \
+		-DOBJECTDETECTION_PACKAGE_COMPONENTS="$(PACKAGE_COMPONENTS)" \
+		-DOBJECTDETECTION_BUILD_DEPENDS_OUTPUT_DIR=$(BUILD_DEPENDS_OUTPUT_DIR) && \
+	cmake --build $(ROOT_DIR)/build/debian-build-deps-config --target debian-build-deps
+
+install-debian-build-deps: openvino-apt-source debian-build-deps
+	@# Help: Install generated Debian Build-Depends with APT
+	@command -v mk-build-deps >/dev/null && command -v dpkg-checkbuilddeps >/dev/null || { echo "Error: mk-build-deps and dpkg-checkbuilddeps are required. Install devscripts, equivs, and dpkg-dev." >&2; exit 1; }
+	@apt-get update; \
+	install_status=0; \
+	for control_file in $$(find $(BUILD_DEPENDS_OUTPUT_DIR) -name control -path '*/debian/control'); do \
+		mk-build-deps --install --remove \
+			--tool 'apt-get --no-install-recommends --no-remove --yes' \
+			"$$control_file" || install_status=1; \
+	done; \
+	: > $(MISSING_BUILD_DEPENDENCIES_FILE); \
+	for control_file in $$(find $(BUILD_DEPENDS_OUTPUT_DIR) -name control -path '*/debian/control'); do \
+		if missing_dependencies="$$(dpkg-checkbuilddeps "$$control_file" 2>&1)"; then \
+			continue; \
+		fi; \
+		printf '%s\n%s\n\n' "$$control_file" "$$missing_dependencies" >> $(MISSING_BUILD_DEPENDENCIES_FILE); \
+	done; \
+	exit "$$install_status"
+
+build:
+	@# Help: Build selected ROS packages with Colcon for local development
+	set +u && source /opt/ros/$(ROS_DISTRO)/setup.bash && set -u && \
+	colcon build --base-paths $(COLCON_BASE_PATHS) --packages-select $(ROS_PACKAGES) --symlink-install --executor sequential --event-handlers console_direct+
 
 test:
+	@# Help: Build & test with Colcon
+	set +u && source /opt/ros/$(ROS_DISTRO)/setup.bash && set -u && \
+	colcon build --base-paths $(COLCON_BASE_PATHS) --packages-select $(ROS_PACKAGES) --symlink-install --cmake-clean-cache \
+		--cmake-args -DBUILD_TESTING=ON \
+			-DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld" \
+			-DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
+		--executor sequential --event-handlers console_direct+ && \
+	set +u && source $(ROOT_DIR)/install/setup.bash && set -u && \
+	colcon test --base-paths $(COLCON_BASE_PATHS) --packages-select $(ROS_PACKAGES) --return-code-on-test-failure --executor sequential --event-handlers console_direct+
+
+container-package:
+	@# Help: Build Debian packages inside a ROS container on the host
 	docker run --rm -t --platform linux/amd64 \
-		-v $(ROOT_DIR):/src \
-		-e DEBIAN_FRONTEND=noninteractive \
+		-v $(ROOT_DIR):/workspace \
+		-w /workspace \
 		-e ROS_DISTRO=$(ROS_DISTRO) \
-		amd64/ros:${ROS_DISTRO}-ros-base \
-		bash -c "curl -v https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB -o /usr/share/keyrings/openvino-archive-keyring.gpg && \
-			cat /usr/share/keyrings/openvino-archive-keyring.gpg | gpg --dearmor | tee /usr/share/keyrings/openvino-archive-keyring.gpg && \
-			echo \"deb [signed-by=/usr/share/keyrings/openvino-archive-keyring.gpg] https://apt.repos.intel.com/openvino ${OPENVINO_DISTRO} main\" | tee /etc/apt/sources.list.d/intel-openvino.list && \
-            apt -qq update && apt -q -y install lld devscripts debhelper openvino libopencv-dev && \
-			$(foreach pkg,$(PACKAGES), cd /src/$(pkg) && cp -r ${ROS_DISTRO}/debian/ . && dpkg-buildpackage -Tclean -d && rm -rf debian/ &&) \
-			cd /src && source /opt/ros/${ROS_DISTRO}/setup.sh && \
-			colcon build \
-            	--executor sequential \
-            	--event-handlers console_direct+ \
-            	--cmake-args \
-					-DCMAKE_LINKER=/usr/bin/ld.lld \
-					-DCMAKE_EXE_LINKER_FLAGS=\"-fuse-ld=lld\" \
-					-DCMAKE_SHARED_LINKER_FLAGS=\"-fuse-ld=lld\" && \
-			source install/setup.bash && \
-			colcon test \
-				--return-code-on-test-failure \
-				--executor sequential \
-				--event-handlers console_direct+ < /dev/null"
+		-e PACKAGE_VERSION_SUFFIX=$(PACKAGE_VERSION_SUFFIX) \
+		-e DEBIAN_FRONTEND=noninteractive \
+		$(DOCKER_PROXY_ENV) \
+		$(CONTAINER_IMAGE) \
+		bash -c "git config --global --add safe.directory /workspace && \
+			apt-get update -qq && apt-get install -y --no-install-recommends curl gnupg cmake ninja-build build-essential devscripts equivs dpkg-dev lld python3-colcon-common-extensions && \
+			source /opt/ros/$(ROS_DISTRO)/setup.bash && \
+			make install-debian-build-deps ROS_DISTRO=$(ROS_DISTRO) && \
+			make package ROS_DISTRO=$(ROS_DISTRO) PACKAGE_VERSION_SUFFIX=$(PACKAGE_VERSION_SUFFIX)"
+
+container-test:
+	@# Help: Build & test with Colcon inside a ROS container on the host
+	docker run --rm -t --platform linux/amd64 \
+		-v $(ROOT_DIR):/workspace \
+		-w /workspace \
+		-e ROS_DISTRO=$(ROS_DISTRO) \
+		-e DEBIAN_FRONTEND=noninteractive \
+		$(DOCKER_PROXY_ENV) \
+		$(CONTAINER_IMAGE) \
+		bash -c "git config --global --add safe.directory /workspace && \
+			apt-get update -qq && apt-get install -y --no-install-recommends curl gnupg cmake ninja-build build-essential devscripts equivs dpkg-dev lld python3-colcon-common-extensions && \
+			source /opt/ros/$(ROS_DISTRO)/setup.bash && \
+			make install-debian-build-deps ROS_DISTRO=$(ROS_DISTRO) && \
+			make test ROS_DISTRO=$(ROS_DISTRO)"
 
 lint:
 	@# Help: Run all sub-linters using super-linter (using linters defined for this repo only)
@@ -97,23 +175,48 @@ lint-all:
 		-v $(ROOT_DIR):/tmp/lint \
 			ghcr.io/super-linter/super-linter:slim-v8.1.0
 
+lint-clang:
+	@# Help: Run clang-format linter using super-linter
+	VALIDATE_CLANG_FORMAT=true make lint-all
+
+lint-python:
+	@# Help: Run Python linters (pylint, flake8) using super-linter
+	VALIDATE_PYTHON_PYLINT=true VALIDATE_PYTHON_FLAKE8=true make lint-all
+
+lint-bash:
+	@# Help: Run Bash linter using super-linter
+	VALIDATE_BASH=true make lint-all
+
+lint-yaml:
+	@# Help: Run YAML linter using super-linter
+	VALIDATE_YAML=true make lint-all
+
+lint-githubactions:
+	@# Help: Run GitHub Actions linter using super-linter
+	VALIDATE_GITHUB_ACTIONS=true make lint-all
+
+lint-markdown:
+	@# Help: Run Markdown linter using super-linter
+	VALIDATE_MARKDOWN=true make lint-all
+
+lint-json:
+	@# Help: Run JSON linter using super-linter
+	VALIDATE_JSON=true make lint-all
+
+clean:
+	@# Help: Remove local build, install, log, and package artifacts
+	rm -rf $(ROOT_DIR)/build $(ROOT_DIR)/install $(ROOT_DIR)/log *.deb *.buildinfo *.changes 2>/dev/null || \
+	docker run --rm -v $(ROOT_DIR):/workspace amd64/ros:$(ROS_DISTRO)-ros-base rm -rf /workspace/build /workspace/install /workspace/log
+
 source-package:
 	@# Help: Create source package tarball
 	git archive --format=zip -o object-detection-$(VERSION).zip HEAD \
-		.gitattributes Makefile README.md REUSE.toml .github/linters LICENSES \
-		object_detection_tutorial scripts segmentation_realsense_tutorial yolov8
-
-clean:
-	@# Clean: Removes build artifacts. Some commands require sudo to properly cleanup, so running it in container to avoid permission issues
-	docker run --rm -t --platform linux/amd64 \
-		-v $(ROOT_DIR):/src \
-		amd64/ros:${ROS_DISTRO}-ros-base \
-		bash -c "cd /src && rm -rf ros-* build/ install/; \
-		$(foreach pkg,$(PACKAGES), cd /src/$(pkg) && rm -rf debian/ build/ install/ obj-x86_64-linux-gnu/;)"
+		.clang-format .gitattributes CMakeLists.txt Makefile README.md REUSE.toml robotics-project.json \
+		.github/linters LICENSES cmake src
 
 help:
-	@printf "%-20s %s\n" "Target" "Description"
-	@printf "%-20s %s\n" "------" "-----------"
+	@printf "%-24s %s\n" "Target" "Description"
+	@printf "%-24s %s\n" "------" "-----------"
 	@grep -E '^[a-zA-Z0-9_%-]+:|^[[:space:]]+@# Help:' Makefile | \
 	awk '\
 		/^[a-zA-Z0-9_%-]+:/ { \
@@ -124,7 +227,7 @@ help:
 			if (target != "") { \
 				help_line = $$0; \
 				sub("^[[:space:]]+@# Help: ", "", help_line); \
-				printf "%-20s %s\n", target, help_line; \
+				printf "%-24s %s\n", target, help_line; \
 				target = ""; \
 			} \
 		}' | sort -k1,1

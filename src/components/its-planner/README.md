@@ -25,7 +25,6 @@ path is in the form of ROS navigation message type (`nav_msgs::msg`).
 
 Currently, the ITS plugin does not support continuous replanning. To use this plugin, a simple behavior tree with compute path to pose and follow path should be used.
 
-
 ## Get Started
 
 ### System Requirements
@@ -34,21 +33,48 @@ Prepare the target system following the [official documentation](https://develop
 
 ### Build
 
-To build the ITS Planner packages, set `ROS_DISTRO` to one of the supported ROS 2 distributions (`humble` or `jazzy`) and run `make build`:
+The build, test, and packaging targets come in two flavors:
+
+- **Containerized targets** (`container-*`) run everything inside a ROS 2 Docker container on the host, so no local ROS installation is required. These are recommended for most users and for CI.
+- **Native targets** (`build`, `test`, `package`) run directly and assume an already prepared ROS 2 environment (for example, inside the container or on a configured host).
+
+Set `ROS_DISTRO` to one of the supported ROS 2 distributions (`humble` or `jazzy`).
+
+#### Build and test in a container
 
 ```bash
-ROS_DISTRO=humble make build
+ROS_DISTRO=humble make container-test
 # or
-ROS_DISTRO=jazzy make build
+ROS_DISTRO=jazzy make container-test
 ```
 
-This will build the following packages (using the selected ROS distribution prefix):
+This builds the patched upstream `nav2-msgs`/`nav2-amcl` packages, installs the per-package Debian build dependencies, and then builds and tests all ROS packages with colcon:
+
 - `ros-${ROS_DISTRO}-its-planner`
 - `ros-${ROS_DISTRO}-its-relocalization`
 - `ros-${ROS_DISTRO}-its-send-localization`
 - `ros-${ROS_DISTRO}-nav2-bringup-collab`
 
-The built packages will be available in the root directory.
+#### Build Debian packages in a container
+
+```bash
+ROS_DISTRO=humble make container-package
+# or
+ROS_DISTRO=jazzy make container-package
+```
+
+This produces native Debian packages with CPack (package versions are sourced from the per-distro changelog files). Generated `.deb` files are written to `build/debian-packages/packages/`.
+
+#### Native targets
+
+If you already have a matching ROS 2 environment sourced, you can run the native targets directly:
+
+```bash
+source /opt/ros/$ROS_DISTRO/setup.bash   # ROS_DISTRO=humble or jazzy
+make build     # colcon build only
+make test      # colcon build and test
+make package   # CPack Debian packages
+```
 
 To clean all build artifacts:
 
@@ -70,16 +96,19 @@ Install the ``ros-${ROS_DISTRO}-its-planner`` Debian package from the Intel Robo
 sudo apt install ros-${ROS_DISTRO}-its-planner
 ```
 
-Or install the locally built Debian package:
+Or install locally packaged Debian artifacts:
 
 ```bash
 sudo apt update
-sudo apt install ./ros-${ROS_DISTRO}-its-planner_*_amd64.deb
+sudo apt install ./build/debian-packages/packages/ros-${ROS_DISTRO}-its-planner_*_amd64.deb
 ```
 
 ### Development
 
 There is a set of prepared Makefile targets to speed up the development.
+
+The repository follows the migrated packaging layout where package components are addressed via `src/` entries declared in `robotics-project.json`.
+This metadata is consumed by CI and local Makefile targets for build, test, and package operations.
 
 In particular, use the following Makefile target to run code linters:
 
@@ -100,16 +129,25 @@ make help
 ```
 
 ```text
-Target               Description
-------               -----------
-build                Build ITS Planner and related packages
-build-nav2-amcl      Build patched nav2-amcl package
-build-nav2-msgs      Build patched nav2-msgs package
-help                 Display this help message
-license-check        Perform a REUSE license check using docker container https://hub.docker.com/r/fsfe/reuse
-lint                 Run all sub-linters using super-linter (using linters defined for this repo only)
-lint-all             Run super-linter over entire repository (auto-detects code to lint)
-source-package       Create source package tarball
+Target                       Description
+------                       -----------
+build                        Build selected ROS packages with Colcon for local development
+build-nav2-amcl              Build patched ros-<distro>-nav2-amcl .deb from upstream source
+build-nav2-msgs              Build patched ros-<distro>-nav2-msgs .deb from upstream source
+clean                        Remove local build, install, log, and package artifacts
+container-debian-build-deps  Generate Debian Build-Depends in container
+container-package            Build Debian packages inside ROS container on host
+container-test               Build & test with Colcon inside ROS container on host
+debian-build-deps            Generate Debian Build-Depends control files without configuring components
+help                         Display this help message
+install-debian-build-deps    Install generated Debian Build-Depends with APT
+install-patched-nav2         Install locally built patched nav2 msgs/amcl .deb files (overlays stock nav2)
+license-check                Perform a REUSE license check using docker container https://hub.docker.com/r/fsfe/reuse
+lint                         Run all sub-linters using super-linter (using linters defined for this repo only)
+lint-all                     Run super-linter over entire repository (auto-detects code to lint)
+package                      Build Debian packages natively using CPack
+source-package               Create source package tarball
+test                         Build & test selected ROS packages with Colcon
 ```
 
 ## Usage

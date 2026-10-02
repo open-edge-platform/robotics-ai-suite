@@ -154,13 +154,12 @@ else()
   else()
     # ROS Humble
     set(dependencies rclcpp cv_bridge DBoW2 univloc_msgs sensor_msgs geometry_msgs visualization_msgs)
-    # Use g2o-intel for Humble
-    find_package(g2o-intel REQUIRED)
+    find_package(g2o REQUIRED)
     target_link_libraries(${PROJECT_NAME} 
-                          g2o-intel::core
-                          g2o-intel::types_slam3d 
-                          g2o-intel::types_sba
-                          g2o-intel::solver_csparse)
+                          g2o::core
+                          g2o::types_slam3d
+                          g2o::types_sba
+                          g2o::solver_csparse)
   endif()
 endif()
 
@@ -204,7 +203,7 @@ ament_export_dependencies(Threads rclcpp cv_bridge DBoW2 univloc_msgs sensor_msg
 if(ROS_DISTRO STREQUAL "jazzy")
   ament_export_dependencies(g2o ament_index_cpp)
 else()
-  ament_export_dependencies(g2o-intel)
+  ament_export_dependencies(g2o)
 endif()
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_package()
@@ -235,6 +234,7 @@ configure_ros_debian_package_with_metadata(
     "libopencv-dev"
     "libeigen3-dev"
     "liblapack-dev"
+    "libsuitesparse-dev"
     "libva-dev"
     "libyaml-cpp-dev"
     "libboost-dev"

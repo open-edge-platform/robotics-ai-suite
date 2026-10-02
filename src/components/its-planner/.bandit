@@ -1,0 +1,4 @@
+[bandit]
+# Exclude vendored upstream code (git submodules) and generated build artifacts.
+# Only first-party sources under src/ are security-scanned.
+exclude = /3rd_party,/build,/install,/log,/output,/artifacts

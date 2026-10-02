@@ -267,12 +267,11 @@ else()
         univloc_msgs
         ${avail_image_transport_pkgs}
         DBoW2)
-    # Use g2o-intel for Humble
     target_link_libraries(${PROJECT_NAME} 
-                          g2o-intel::core
-                          g2o-intel::types_slam3d 
-                          g2o-intel::types_sba
-                          g2o-intel::solver_csparse)
+                          g2o::core
+                          g2o::types_slam3d
+                          g2o::types_sba
+                          g2o::solver_csparse)
   endif()
 endif()
 
@@ -477,6 +476,7 @@ configure_ros_debian_package_with_metadata(
     "libopencv-dev"
     "libeigen3-dev"
     "liblapack-dev"
+    "libsuitesparse-dev"
     "libva-dev"
     "libyaml-cpp-dev"
     "libboost-dev"

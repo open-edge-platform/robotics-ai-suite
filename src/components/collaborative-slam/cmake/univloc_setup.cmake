@@ -181,13 +181,10 @@ else()
   # We set as GLVND to align with the default value inside g2o cmake file
   set(OpenGL_GL_PREFERENCE "GLVND")
   
-  # Use different g2o packages based on ROS distribution
+  find_package(g2o REQUIRED)
   if(ROS_DISTRO STREQUAL "humble")
-    find_package(g2o-intel REQUIRED)
-    message(STATUS "Using g2o-intel for ROS Humble")
-  elseif(ROS_DISTRO STREQUAL "jazzy")
-    find_package(g2o REQUIRED)
-    message(STATUS "Using standard g2o for ROS Jazzy")
+    find_path(SUITESPARSE_INCLUDE_DIR cs.h PATH_SUFFIXES suitesparse REQUIRED)
+    include_directories(${SUITESPARSE_INCLUDE_DIR})
   endif()
   
   find_package(nlohmann_json REQUIRED)

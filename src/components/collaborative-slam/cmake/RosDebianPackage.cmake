@@ -37,9 +37,6 @@ function(configure_ros_debian_package_with_metadata)
     RENAME "changelog.Debian"
   )
 
-  if(ROS_DISTRO STREQUAL "humble")
-    list(TRANSFORM ROS_DEBIAN_DEPENDS REPLACE "^ros-humble-libg2o$" "ros-humble-libg2o-intel-sse")
-  endif()
   string(REPLACE ";" ", " package_dependencies "${ROS_DEBIAN_DEPENDS}")
   string(REPLACE ";" ", " package_recommends "${ROS_DEBIAN_RECOMMENDS}")
 
