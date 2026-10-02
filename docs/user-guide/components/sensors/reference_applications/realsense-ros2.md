@@ -1,26 +1,26 @@
 ```{eval-rst}
 .. meta::
-   :description: Deploy and validate Intel® RealSense™ camera integration with ROS 2, resulting in camera data publication and image visualization through RViz2.
+   :description: Deploy and validate RealSense camera integration with ROS 2, resulting in camera data publication and image visualization through RViz2.
 ```
 
 
-# Intel® RealSense™ Cameras with ROS 2
+# RealSense Cameras with ROS 2
 
-This section shows how to install and run a ROS 2 sample application that uses Intel® RealSense™ cameras and ROS Visualization 2 (RViz2).
+This section shows how to install and run a ROS 2 sample application that uses RealSense cameras and ROS Visualization 2 (RViz2).
 
 You will learn how to:
 
 - Launch ROS nodes for a camera.
 - List ROS topics.
-- Confirm that Intel RealSense camera topics are publishing data.
-- Retrieve data from the Intel RealSense camera.
-- Visualize an image from the Intel RealSense camera in RViz2.
+- Confirm that RealSense camera topics are publishing data.
+- Retrieve data from the RealSense camera.
+- Visualize an image from the RealSense camera in RViz2.
 
-You can run this sample application using two different types of Intel RealSense cameras,
+You can run this sample application using two different types of RealSense cameras,
 explained further in this section:
 
-- An Intel RealSense camera connected through USB, for example, the Intel RealSense D435i.
-- An [Intel RealSense Depth Camera D457](https://www.realsenseai.com/products/d457-gmsl-fakra/).
+- A RealSense camera connected through USB, for example, the RealSense D435i.
+- A [RealSense Depth Camera D457](https://www.realsenseai.com/products/d457-gmsl-fakra/).
 
 
 > [!NOTE]
