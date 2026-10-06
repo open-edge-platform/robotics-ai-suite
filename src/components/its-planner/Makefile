@@ -34,7 +34,7 @@ PACKAGE_CMAKE_GENERATOR := $(shell if command -v ninja >/dev/null 2>&1; then ech
 CONTAINER_BUILD_TOOLING := cmake ninja-build build-essential devscripts equivs dpkg-dev quilt python3-colcon-common-extensions
 
 .DEFAULT_GOAL := help
-.PHONY: license-check build test package debian-build-deps install-debian-build-deps \
+.PHONY: license-check build test test-e2e package debian-build-deps install-debian-build-deps \
 	build-nav2-msgs build-nav2-amcl install-patched-nav2 \
 	container-debian-build-deps container-package container-test \
 	clean help source-package lint lint-all lint-bash lint-clang lint-python lint-markdown lint-yaml
@@ -112,6 +112,18 @@ test:
 	set +u && source $(ROOT_DIR)/install/setup.bash && set -u && \
 	colcon test --base-paths $(ROOT_DIR)/src --packages-select $(ROS_PACKAGES) --return-code-on-test-failure --executor sequential --event-handlers console_direct+ && \
 	colcon test-result --verbose
+
+test-e2e:
+	@# Help: Run headless ITS planner E2E test against the active ROS prefix
+	@set +u && source /opt/ros/$(ROS_DISTRO)/setup.bash && set -u && \
+	ros2 pkg prefix its_planner >/dev/null 2>&1 || { \
+		echo "Error: its_planner is unavailable. Install its package or build and source install/setup.bash first." >&2; \
+		exit 1; \
+	}
+	mkdir -p $(ROOT_DIR)/testout
+	set +u && source /opt/ros/$(ROS_DISTRO)/setup.bash && set -u && export ROS_DOMAIN_ID=42 && \
+		/usr/bin/python3 -m launch_testing.launch_test $(ROOT_DIR)/tests/its_planner_e2e_test.py \
+			--junit-xml=$(ROOT_DIR)/testout/its_planner_e2e.xml
 
 package:
 	@# Help: Build Debian packages natively using CPack
@@ -200,15 +212,15 @@ container-test: build-nav2-amcl
 
 clean:
 	@# Help: Remove local build, install, log, and package artifacts
-	rm -rf $(ROOT_DIR)/build $(ROOT_DIR)/install $(ROOT_DIR)/log $(ROOT_DIR)/output *.deb *.buildinfo *.changes 2>/dev/null || \
-	docker run --rm -v $(ROOT_DIR):/workspace $(CONTAINER_IMAGE) rm -rf /workspace/build /workspace/install /workspace/log /workspace/output
+	rm -rf $(ROOT_DIR)/build $(ROOT_DIR)/install $(ROOT_DIR)/log $(ROOT_DIR)/output $(ROOT_DIR)/testout *.deb *.buildinfo *.changes 2>/dev/null || \
+	docker run --rm -v $(ROOT_DIR):/workspace $(CONTAINER_IMAGE) rm -rf /workspace/build /workspace/install /workspace/log /workspace/output /workspace/testout
 
 
 source-package:
 	@# Help: Create source package tarball
 	git archive --format=zip -o its-planner-$(VERSION).zip HEAD \
 		.gitattributes .gitignore .gitmodules Makefile README.md REUSE.toml CMakeLists.txt \
-		.github/linters 3rd_party cmake docs LICENSES src robotics-project.json
+		.github/linters 3rd_party cmake docs LICENSES src tests robotics-project.json
 
 lint:
 	@# Help: Run all sub-linters using super-linter (using linters defined for this repo only)
