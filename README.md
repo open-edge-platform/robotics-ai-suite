@@ -85,7 +85,7 @@ The per-collection reference application architectures — which zoom into a rep
 
 | Application | Documentation | Description |
 | ----------- | ------------- | ----------- |
-| [Stationary Robot Vision & Control](robot-vision-control) | [Stationary Robot Vision & Control](https://developer.robotics.intel.com/development-stack/hardware_blueprints/stationary_arm/) | Stationary Robot Vision & Control is a robotic software framework aimed at tackling pick-and-place and track-and-place industrial problems. This is under active development, hence released in the *pre-release* quality. |
+| [Stationary Robot Vision & Control](src/robot-vision-control) | [Stationary Robot Vision & Control](https://developer.robotics.intel.com/development-stack/hardware_blueprints/stationary_arm/) | Stationary Robot Vision & Control is a robotic software framework aimed at tackling pick-and-place and track-and-place industrial problems. This is under active development, hence released in the *pre-release* quality. |
 
 **OpenVINO™ Toolkit-Optimized Model Algorithms:**
 
