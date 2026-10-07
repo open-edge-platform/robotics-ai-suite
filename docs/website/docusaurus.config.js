@@ -3,6 +3,7 @@
 const path = require("path");
 
 const sphinxDocs = require("./plugins/sphinx-docs");
+const configBaseUrl = (process.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 // Header text for the generated llms.txt (see plugins/llms-text).
 const LLMS_SITE_DESCRIPTION =
@@ -30,8 +31,13 @@ const config = {
   headTags: [
     {
       tagName: "script",
+      attributes: {},
+      innerHTML: "window.wapSinglePage = true;",
+    },
+    {
+      tagName: "script",
       attributes: {
-        src: "https://developer.robotics.intel.com/common-includes/head-bootstrap.v1.js",
+        src: `${configBaseUrl}common-includes/head-bootstrap.v1.js`,
         defer: true,
       },
     },

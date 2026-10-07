@@ -45,10 +45,12 @@ function stageSphinxHtml() {
   <head>
     <meta charset="utf-8">
     <meta http-equiv="refresh" content="0; url=${target}">
+    <script src="${baseUrl}common-includes/head-bootstrap.v1.js"></script>
     <script>window.location.replace('${target}');</script>
   </head>
   <body>
     <p>Redirecting to <a href="${target}">Development Stack</a>...</p>
+    <p><a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a> | <a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy</a></p>
   </body>
 </html>`;
 
