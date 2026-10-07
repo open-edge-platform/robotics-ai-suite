@@ -153,13 +153,7 @@ const config = {
       },
       footer: {
         style: "dark",
-        copyright: `<div class="legal-footer">
-        <span>\u00a9 ${new Date().getFullYear()} Intel Corporation</span>
-        <a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a>
-        <a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a>
-        <a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a>
-
-      </div>`,
+        copyright: '<div id="footer-custom-content" data-include="footer-unified"></div>',
       },
       prism: {
         theme: require("prism-react-renderer").themes.github,
