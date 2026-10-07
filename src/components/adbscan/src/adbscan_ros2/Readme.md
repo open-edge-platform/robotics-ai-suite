@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## How to Build the ADBSCAN ROS2 Node Locally
 
-To build the package, navigate to the `edge-ai-suites/robotics-ai-suite/components/adbscan/ROS2_node` directory and execute:
+To build the package, navigate to the `robotics-ai-suite/src/components/adbscan` directory and execute:
 
 ```bash
 colcon build
@@ -16,30 +16,30 @@ colcon build
 
 ## How to run the ADBSCAN ROS2 node
 
-To set up the environment for running the ROS 2 nodes associated with the ADBSCAN package, please navigate to the following directory to source the `setup.bash` file: `edge-ai-suites/robotics-ai-suite/components/adbscan/ROS2_node/install/`
+To set up the environment for running the ROS 2 nodes associated with the ADBSCAN package, please navigate to the following directory to source the `setup.bash` file: `src/components/adbscan/install/`
 
 ```bash
-cd edge-ai-suites/robotics-ai-suite/components/adbscan/ROS2_node/install/
+cd src/components/adbscan/install/
 source setup.bash
 ```
 
 For RealSense camera input, execute:
 
 ```bash
-ros2 launch adbscan_ros2 play_demo_realsense_launch.py 
+ros2 launch adbscan_ros2 play_demo_realsense_launch.py
 ```
 
 For Lidar input, execute:
 
 ```bash
-ros2 launch adbscan_ros2 play_demo_lidar_launch.py 
+ros2 launch adbscan_ros2 play_demo_lidar_launch.py
 ```
 
 ## ADBSCAN ROS2 Node Input Description
 
 The input data is passed into the ROS2 node through a ROS2 topic defined in the ROS2 configuration file by the parameter `Lidar_topic`. You can edit this parameter for a customized name.
 
-The configuration files are located in the `edge-ai-suites/robotics-ai-suite/components/adbscan/ROS2_node/config` directory.
+The configuration files are located in the `src/components/adbscan/src/adbscan_ros2/config` directory.
 
 - **2D Lidar Input**:
   - **File name**: `adbscan_sub_2D.yaml`

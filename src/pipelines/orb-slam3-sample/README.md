@@ -138,13 +138,13 @@ This step-by-step guide will detail how to build ORB-SLAM3 into a Debian package
 5. Clone the Robotics AI Suite source:
 
    ```bash
-   git clone https://github.com/open-edge-platform/edge-ai-suites.git -b main --recurse-submodules
+   git clone https://github.com/open-edge-platform/robotics-ai-suite.git -b main --recurse-submodules
    ```
 
 6. Copy the Robotics AI Suite ORB-SLAM3 patches:
 
    ```bash
-   cd edge-ai-suites/robotics-ai-suite/components/orb-slam3-sample
+   cd robotics-ai-suite/src/pipelines/orb-slam3-sample
    cp ./patches/* ./ORB_SLAM3
    ```
 
