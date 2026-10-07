@@ -30,6 +30,13 @@ const server = http.createServer((request, response) => {
   }
 
   request.url = url.pathname.slice(baseUrl.length - 1) + url.search;
+  const writeHead = response.writeHead.bind(response);
+  response.writeHead = (statusCode, headers) => {
+    if (baseUrl !== "/" && headers?.Location?.startsWith("/")) {
+      headers.Location = `${baseUrl.slice(0, -1)}${headers.Location}`;
+    }
+    return writeHead(statusCode, headers);
+  };
   serveHandler(request, response, {
     public: publicDir,
     cleanUrls: true,
