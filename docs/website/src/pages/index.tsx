@@ -15,7 +15,7 @@ export default function Home(): React.JSX.Element {
   return (
     <Layout
       title="Home"
-      description={`${siteConfig.title} — documentation for the OpenVINO ecosystem.`}
+      description={`${siteConfig.title} — Physical AI optimized for Intel hardware.`}
     >
       <HomeHeader />
       <RoboticsEcosystem />
