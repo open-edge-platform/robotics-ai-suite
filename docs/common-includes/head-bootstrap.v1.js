@@ -15,6 +15,7 @@
 (function () {
   'use strict';
 
+  var bootstrapSrc = document.currentScript && document.currentScript.src;
   // Idempotency guard - safe to include on single-page apps or partial reloads.
   if (window.__oepBootstrapV1Loaded) { return; }
   window.__oepBootstrapV1Loaded = true;
@@ -38,9 +39,8 @@
   // 1) Intel WAP (cookie consent and TMS variables + loader).
   window.wapProfile = 'profile-microsite';    // This is mapped by WAP authorize value
   window.wapLocalCode = 'us-en';
-  window.wapSection = 'oep-docs';
+  window.wapSection = 'dev-robotics-intel';
   window.wapEnv = 'prod';                    // Environment used by Adobe Tags. Non-prod should use 'stg'.
-  window.wapSinglePage = false;
 
   // Initialize consent category queues if WAP has not populated them yet.
   window.wap_tms = window.wap_tms || {};
@@ -191,6 +191,7 @@
   }
 
   window.wap_tms.categoriesQueue['analytics'].push(function () {
+    loadScript('https://www.intel.com/content/dam/www/global/wap/performance-config.js');
     initGa();
   });
 
@@ -200,9 +201,27 @@
 
   // WAP consumes and executes analytics callbacks after user consent.
 
+  function initKapa() {
+    if (document.querySelector('script[src="https://widget.kapa.ai/kapa-widget.bundle.js"]')) { return; }
+    var kapa = document.createElement('script');
+    kapa.async = true;
+    kapa.src = 'https://widget.kapa.ai/kapa-widget.bundle.js';
+    kapa.setAttribute('data-website-id', '2f50f7bd-1e1f-4181-a931-602a22b19e91');
+    kapa.setAttribute('data-project-name', 'Open Edge Platform Documentation');
+    kapa.setAttribute('data-project-color', '#0068b5');
+    kapa.setAttribute('data-project-logo', 'https://docs.openedgeplatform.intel.com/dev/_static/logo.svg');
+    document.head.appendChild(kapa);
+  }
+
+  window.wap_tms.categoriesQueue['functional'].push(initKapa);
+
   // 3) Intel IGHF header/footer integration (delayed until dynamic footer includes complete).
   function initIghf() {
     if (!document.getElementById('footer-custom-content')) { return; }
+    if (document.getElementById('oep-consent-chat-fallback')) {
+      loadScript(new URL('kapa-consent-fallback.v1.js', bootstrapSrc ||
+        'https://developer.robotics.intel.com/common-includes/head-bootstrap.v1.js').href, { async: true });
+    }
     if (window.__oepIghfLoaded) { return; }
     window.__oepIghfLoaded = true;
 

@@ -2,8 +2,8 @@
 
 {% block extrahead %}
 
-<!-- Central head bootstrap: manages GA, IGHF, and WAP/consent for all deployed documentation
-     versions. Update the hosted file to apply changes across all versions without rebuilding. -->
-<script src="https://developer.robotics.intel.com/common-includes/head-bootstrap.v1.js" defer></script>
+<!-- Use the build's shared bootstrap; standalone Sphinx previews fall back to the hosted copy. -->
+<script src="{{ site_baseurl }}common-includes/head-bootstrap.v1.js" defer
+     onerror="this.onerror=null;this.src='https://developer.robotics.intel.com/common-includes/head-bootstrap.v1.js'"></script>
 
 {% endblock %}

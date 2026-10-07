@@ -36,6 +36,51 @@ footer div.container div.content-footer {
 div#kapa-widget-container {
     z-index: 99999 !important;
 }
+
+#oep-consent-chat-fallback {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9998;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: #0068b5;
+  color: #fff;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .3);
+}
+
+#oep-consent-chat-fallback svg { width: 26px; height: 26px; fill: currentColor; }
+#oep-consent-chat-fallback:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+#oep-consent-chat-fallback-tip { display: none; }
+#oep-consent-chat-fallback:hover + #oep-consent-chat-fallback-tip,
+#oep-consent-chat-fallback:focus + #oep-consent-chat-fallback-tip {
+  display: block;
+  position: fixed;
+  bottom: 88px;
+  right: 16px;
+  z-index: 9999;
+  padding: 7px 11px;
+  background: #1a1a1a;
+  color: #fff;
+}
+#oep-consent-chat-fallback-message { display: none; }
+#oep-consent-chat-fallback-message.oep-chat-fallback-message-visible {
+  display: block;
+  position: fixed;
+  bottom: 130px;
+  right: 16px;
+  z-index: 9999;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 11px 13px;
+  background: #003c71;
+  color: #fff;
+}
 </style>
 
 
@@ -52,6 +97,17 @@ div#kapa-widget-container {
       Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or
       its subsidiaries. Other names and brands may be claimed as the property of others.
     </p>
+    <button id="oep-consent-chat-fallback" type="button"
+            aria-label="Enable AI chat - cookie consent required"
+            aria-describedby="oep-consent-chat-fallback-tip">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 2C6.477 2 2 6.038 2 11c0 2.56 1.077 4.87 2.82 6.548L4 22l4.82-1.525A10.09 10.09 0 0 0 12 21c5.523 0 10-4.038 10-9S17.523 2 12 2Z"/>
+      </svg>
+    </button>
+    <div id="oep-consent-chat-fallback-tip" role="tooltip">Enable cookies to use AI chat</div>
+    <div id="oep-consent-chat-fallback-message" role="status" aria-live="polite">
+      Chat is locked. Enable Functional cookies to unlock it.
+    </div>
   </div>
 </div>
 

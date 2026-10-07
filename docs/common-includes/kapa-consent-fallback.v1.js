@@ -18,12 +18,6 @@
   var btn = document.getElementById('oep-consent-chat-fallback');
   var tip = document.getElementById('oep-consent-chat-fallback-tip');
   var msg = document.getElementById('oep-consent-chat-fallback-message');
-  if (window.__oepAiChatEnabled !== true) {
-    if (btn) { btn.remove(); }
-    if (tip) { tip.remove(); }
-    if (msg) { msg.remove(); }
-    return;
-  }
   if (!btn) { return; }
 
   /**
@@ -103,7 +97,14 @@
     return document.querySelector('script[src*="kapa-widget.bundle.js"]') !== null;
   }
 
+  function isConsentDialogAvailable() {
+    return (window.OneTrust && typeof window.OneTrust.ToggleInfoDisplay === 'function') ||
+      (window.Optanon && typeof window.Optanon.ToggleInfoDisplay === 'function') ||
+      document.querySelector('#onetrust-pc-btn-handler, .ot-sdk-show-settings, [onclick*="ToggleInfoDisplay"]');
+  }
+
   function showFallback() {
+    if (!isConsentDialogAvailable() || isKapaInitiated() || btn.style.display === 'flex') { return; }
     btn.style.display = 'flex';
     debugLog('showFallback', { autoOpenRequested: autoOpenRequested });
 
@@ -172,6 +173,7 @@
    */
   function openConsentModal() {
     var opened = false;
+    if (!isConsentDialogAvailable()) { hideFallback(); return; }
 
     if (window.OneTrust && typeof window.OneTrust.ToggleInfoDisplay === 'function') {
       window.OneTrust.ToggleInfoDisplay();
@@ -255,7 +257,7 @@
     }
 
     var observer = new MutationObserver(function () {
-      if (!isKapaInitiated()) { return; }
+      if (!isKapaInitiated()) { showFallback(); return; }
       hideFallback();
       tryReloadAfterConsent('observer:kapaDetected');
       scheduleAutoOpenKapa();
@@ -317,6 +319,7 @@
         clearInterval(poll);
         return;
       }
+      if (isConsentDialogAvailable()) { showFallback(); } else { hideFallback(); }
       if (elapsed >= POLL_TIMEOUT) {
         debugLog('poll:timeout');
         clearInterval(poll);
@@ -328,6 +331,7 @@
   // ensure reload even if queue timing differs across environments.
   document.addEventListener('consent.onetrust', function () {
     setTimeout(function () {
+      showFallback();
       tryReloadAfterConsent('event:consent.onetrust');
     }, 200);
   });
@@ -335,6 +339,7 @@
   document.addEventListener('wapEvent', function (evt) {
     if (evt && evt.detail === 'consent:ready') {
       setTimeout(function () {
+        showFallback();
         tryReloadAfterConsent('event:wapEvent:consent:ready');
       }, 200);
     }

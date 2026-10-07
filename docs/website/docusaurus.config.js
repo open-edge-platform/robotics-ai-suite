@@ -3,6 +3,7 @@
 const path = require("path");
 
 const sphinxDocs = require("./plugins/sphinx-docs");
+const configBaseUrl = (process.env.BASE_URL || "/").replace(/\/?$/, "/");
 
 // Header text for the generated llms.txt (see plugins/llms-text).
 const LLMS_SITE_DESCRIPTION =
@@ -30,8 +31,13 @@ const config = {
   headTags: [
     {
       tagName: "script",
+      attributes: {},
+      innerHTML: "window.wapSinglePage = true;",
+    },
+    {
+      tagName: "script",
       attributes: {
-        src: "https://developer.robotics.intel.com/common-includes/head-bootstrap.v1.js",
+        src: `${configBaseUrl}common-includes/head-bootstrap.v1.js`,
         defer: true,
       },
     },
@@ -153,13 +159,7 @@ const config = {
       },
       footer: {
         style: "dark",
-        copyright: `<div class="legal-footer">
-        <span>\u00a9 ${new Date().getFullYear()} Intel Corporation</span>
-        <a href="https://www.intel.com/content/www/us/en/legal/terms-of-use.html">Terms of Use</a>
-        <a href="https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html">Cookies</a>
-        <a href="https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html">Privacy Policy</a>
-
-      </div>`,
+        copyright: '<div id="footer-custom-content" data-include="footer-unified"></div>',
       },
       prism: {
         theme: require("prism-react-renderer").themes.github,

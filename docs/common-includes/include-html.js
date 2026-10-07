@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // this script loads the common footer file into the page
+const includeBaseUrl = new URL('.', document.currentScript.src);
+
 async function loadInclude(inc_container, inc_section_name) {
 
     try {
         const response = await fetch(
-            `https://developer.robotics.intel.com/common-includes/${encodeURIComponent(inc_section_name)}.html`
+            new URL(`${encodeURIComponent(inc_section_name)}.html`, includeBaseUrl)
         );
 
         if (!response.ok) {
