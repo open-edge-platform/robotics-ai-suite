@@ -49,8 +49,12 @@ jobs:
         id: find-paths
         run: |
           paths=$( { find . -path '*/.github/skills' -type d; find . -path '*/skills' -type d; } \
-            | sed 's|^\./||' \
             | sort -u \
+            | while IFS= read -r dir; do
+                if [[ -n $(git ls-files -- "$dir/**/SKILL.md" "$dir/SKILL.md") ]]; then
+                  printf '%s\n' "${dir#./}"
+                fi
+              done \
             | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "matrix=$paths" >> "$GITHUB_OUTPUT"
 
