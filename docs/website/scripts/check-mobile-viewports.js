@@ -1,6 +1,7 @@
 const { chromium } = require("playwright");
+const { once } = require("node:events");
 
-const BASE_URL = process.argv[2] || process.env.TEST_URL || "http://localhost:3000";
+const BASE_URL = process.argv[2] || process.env.TEST_URL;
 
 const VIEWPORTS = [
   { name: "Mobile Small (iPhone SE / Galaxy Fold)", width: 320, height: 568 },
@@ -9,35 +10,48 @@ const VIEWPORTS = [
   { name: "Mobile Pro Max (iPhone Plus / Max)", width: 430, height: 932 },
   { name: "Small Tablet / Landscape Mobile", width: 640, height: 800 },
   { name: "Tablet Portrait (iPad Mini / Air)", width: 768, height: 1024 },
+  { name: "Desktop", width: 1280, height: 800 },
 ];
 
 const ROUTES = [
-  "/",
-  "/models/",
-  "/models/act-fp16-ov/",
-  "/skills/",
+  { path: "/", hydrated: true },
+  { path: "/models/", hydrated: true },
+  { path: "/skills/", hydrated: true },
+  { path: "/development-stack/ai-suite-robotics/", hydrated: false },
 ];
 
 async function run() {
-  console.log(`\n🔍 Running Mobile Viewport Regression Tests against: ${BASE_URL}\n`);
+  const previousPort = process.env.PORT;
+  if (!BASE_URL) process.env.PORT = "0";
+  const server = BASE_URL ? null : require("./serve");
+  if (previousPort === undefined) delete process.env.PORT;
+  else process.env.PORT = previousPort;
+  if (server && !server.listening) await once(server, "listening");
+  const testUrl = BASE_URL || `http://127.0.0.1:${server.address().port}${(process.env.BASE_URL || "/").replace(/\/?$/, "/")}`;
+  const origin = new URL(testUrl).origin;
+  console.log(`\n🔍 Running Website Regression Tests against: ${testUrl}\n`);
 
-  const browser = await chromium.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
-  });
+  let browser;
+  try {
+    browser = await chromium.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
+    });
+    await checkSite(browser, testUrl, origin);
+  } finally {
+    await browser?.close();
+    if (server) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+}
 
+async function checkSite(browser, testUrl, origin) {
   const context = await browser.newContext();
   const page = await context.newPage();
 
   // Abort external resources that can hang or fail when offline / firewall restricted
   await page.route("**/*", (route) => {
     const url = route.request().url();
-    if (
-      url.includes("fonts.googleapis.com") ||
-      url.includes("fonts.gstatic.com") ||
-      url.includes("google-analytics") ||
-      url.includes("googletagmanager")
-    ) {
+    if (new URL(url).origin !== origin) {
       route.abort();
     } else {
       route.continue();
@@ -47,10 +61,30 @@ async function run() {
   let totalTests = 0;
   let passedTests = 0;
   const failures = [];
+  page.on("pageerror", (error) => failures.push(`Uncaught browser error: ${error.message}`));
+  page.on("response", (response) => {
+    if (new URL(response.url()).origin === origin && response.status() >= 400) {
+      failures.push(`${response.status()} ${response.url()}`);
+    }
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error" && message.location().url.startsWith(origin)) {
+      failures.push(`Browser console error: ${message.text()}`);
+    }
+  });
 
-  for (const route of ROUTES) {
-    const url = `${BASE_URL.replace(/\/$/, "")}${route}`;
-    await page.goto(url, { waitUntil: "commit", timeout: 15000 });
+  for (const { path: route, hydrated } of ROUTES) {
+    const url = new URL(route.slice(1), `${testUrl.replace(/\/?$/, "/")}`).href;
+    const response = await page.goto(url, { waitUntil: "commit", timeout: 15000 });
+    if (!response || !response.ok()) {
+      throw new Error(`${route} returned ${response?.status() ?? "no response"}`);
+    }
+    if (hydrated) {
+      await page.waitForFunction(() => document.documentElement.getAttribute("data-has-hydrated") === "true", null, { timeout: 15000 });
+    } else {
+      console.log(`  ✓ ${route} returned ${response.status()}\n`);
+      continue;
+    }
     // Brief settle for hydration
     await page.waitForTimeout(600);
 
@@ -96,21 +130,30 @@ async function run() {
         }
       }
     }
+    if (route === "/models/") {
+      const detailUrl = new URL("models/act-fp16-ov/", `${testUrl.replace(/\/?$/, "/")}`);
+      await page.evaluate((path) => {
+        history.pushState({}, "", path);
+        dispatchEvent(new PopStateEvent("popstate"));
+      }, detailUrl.pathname);
+      await page.waitForFunction(() => document.title.includes("act-fp16-ov"), null, { timeout: 15000 });
+      console.log("  ✓ /models/act-fp16-ov/ resolved through client navigation");
+    }
     console.log("");
   }
-
-  await browser.close();
 
   console.log("--------------------------------------------------------------------------------");
   console.log(`Total Checks: ${totalTests} | Passed: ${passedTests} | Failed: ${failures.length}`);
   console.log("--------------------------------------------------------------------------------\n");
 
   if (failures.length > 0) {
-    console.error(`❌ Mobile regression test failed: ${failures.length} viewport/route combinations exhibited horizontal overflow.`);
-    process.exit(1);
+    console.error(`❌ Website regression test failed: ${failures.length} error(s).`);
+    for (const failure of failures) {
+      if (typeof failure === "string") console.error(`  ${failure}`);
+    }
+    process.exitCode = 1;
   } else {
-    console.log("✅ All mobile viewport checks passed with 0px horizontal overflow!");
-    process.exit(0);
+    console.log("✅ Website regression checks passed!");
   }
 }
 

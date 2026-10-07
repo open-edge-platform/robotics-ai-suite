@@ -11,7 +11,7 @@ const host = process.env.HOST || "127.0.0.1";
 const port = Number(process.env.PORT || 3000);
 const publicDir = process.env.SITE_BUILD_DIR || path.resolve(__dirname, "..", "build");
 
-http.createServer((request, response) => {
+const server = http.createServer((request, response) => {
   let url;
   try {
     url = new URL(request.url, "http://localhost");
@@ -40,4 +40,6 @@ http.createServer((request, response) => {
     if (!response.headersSent) response.writeHead(500);
     response.end();
   });
-}).listen(port, host, () => console.log(`Serving http://${host}:${port}${baseUrl}`));
+}).listen(port, host, () => console.log(`Serving http://${host}:${server.address().port}${baseUrl}`));
+
+module.exports = server;

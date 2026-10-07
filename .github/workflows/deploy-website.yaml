@@ -53,6 +53,15 @@ jobs:
           HF_ORG: ${{ vars.HF_ORG }}
         run: npm run build
 
+      - name: Install browser for website tests
+        working-directory: docs/website
+        run: npx playwright install --with-deps chromium
+
+      - name: Test website
+        env:
+          BASE_URL: ${{ github.event_name == 'pull_request' && format('/pr/{0}/', github.event.number) || '/' }}
+        run: make test-website
+
       - name: Check PR preview routes
         if: github.event_name == 'pull_request'
         working-directory: docs/website

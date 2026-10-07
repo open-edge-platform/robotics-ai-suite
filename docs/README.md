@@ -26,6 +26,8 @@ For PR-previews or alternate base paths:
 BASE_URL=/pr/2/ PORT=3002 make serve
 ```
 
+After building with `make website`, run `make test-website` to check the built site with Chromium. If the browser is not installed locally, run `npm exec --prefix docs/website -- playwright install chromium` first. The test target checks generated pages, responsive layout, client-side model routing, and browser errors without requiring a separate server.
+
 ### Sphinx User Guide Only
 
 If you are only editing user guide documents and want rapid live reloading of the Sphinx content:
