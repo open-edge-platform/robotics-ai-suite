@@ -11,7 +11,8 @@
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "node scripts/serve.js",
-    "test:mobile": "node scripts/check-mobile-viewports.js"
+    "test:mobile": "node scripts/check-mobile-viewports.js",
+    "test:website": "node scripts/check-mobile-viewports.js"
   },
   "dependencies": {
     "@docusaurus/core": "^3.7.0",

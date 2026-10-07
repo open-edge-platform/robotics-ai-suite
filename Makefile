@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 .DEFAULT_GOAL := help
-.PHONY: help build website serve build-components test package
+.PHONY: help build website serve test-website build-components test package
 
 PROJECT_NAME := robotics-ai-suite
 
@@ -11,6 +11,11 @@ build: website ## Build the documentation website
 website: ## Build the documentation website
 	npm ci --prefix docs/website
 	npm run build --prefix docs/website
+
+test-website: ## Test the built documentation website
+	test -s docs/website/build/index.html
+	test -s docs/website/build/development-stack/ai-suite-robotics/index.html
+	npm run test:website --prefix docs/website
 
 serve: ## Build and serve the documentation website locally
 	@set -eu; \
