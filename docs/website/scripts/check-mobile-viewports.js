@@ -1,4 +1,4 @@
-const { chromium } = require("playwright");
+const { chromium, firefox, webkit } = require("playwright");
 const { once } = require("node:events");
 
 const BASE_URL = process.argv[2] || process.env.TEST_URL;
@@ -20,6 +20,12 @@ const ROUTES = [
   { path: "/development-stack/ai-suite-robotics/", hydrated: false },
 ];
 
+const BROWSERS = [
+  { name: "Chromium", type: chromium, launchOptions: { args: ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"] } },
+  { name: "Firefox", type: firefox },
+  { name: "WebKit", type: webkit },
+];
+
 async function run() {
   const previousPort = process.env.PORT;
   if (!BASE_URL) process.env.PORT = "0";
@@ -31,15 +37,27 @@ async function run() {
   const origin = new URL(testUrl).origin;
   console.log(`\n🔍 Running Website Regression Tests against: ${testUrl}\n`);
 
-  let browser;
   try {
-    browser = await chromium.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
-    });
-    await checkSite(browser, testUrl, origin);
+    for (const { name, type, launchOptions } of BROWSERS) {
+      console.log(`\n${name}:`);
+      let browser;
+      try {
+        browser = await type.launch({ headless: true, ...launchOptions });
+      } catch (error) {
+        if (name === "WebKit" && process.env.REQUIRE_WEBKIT !== "1" &&
+            /Host system is missing dependencies to run browsers/.test(error.message)) {
+          console.warn("  WebKit skipped: this host is missing required browser libraries.");
+          continue;
+        }
+        throw error;
+      }
+      try {
+        await checkSite(browser, testUrl, origin);
+      } finally {
+        await browser.close();
+      }
+    }
   } finally {
-    await browser?.close();
     if (server) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 }
@@ -61,6 +79,7 @@ async function checkSite(browser, testUrl, origin) {
   let totalTests = 0;
   let passedTests = 0;
   const failures = [];
+  const consoleErrors = [];
   page.on("pageerror", (error) => failures.push(`Uncaught browser error: ${error.message}`));
   page.on("response", (response) => {
     if (new URL(response.url()).origin === origin && response.status() >= 400) {
@@ -69,7 +88,9 @@ async function checkSite(browser, testUrl, origin) {
   });
   page.on("console", (message) => {
     if (message.type() === "error" && message.location().url.startsWith(origin)) {
-      failures.push(`Browser console error: ${message.text()}`);
+      consoleErrors.push(Promise.resolve(message.args()[1]?.evaluate((error) => error?.message || String(error)))
+        .catch(() => "unavailable")
+        .then((detail) => failures.push(`Browser console error: ${message.text()}${detail ? ` ${detail}` : ""}`)));
     }
   });
 
@@ -81,6 +102,7 @@ async function checkSite(browser, testUrl, origin) {
     }
     if (hydrated) {
       await page.waitForFunction(() => document.documentElement.getAttribute("data-has-hydrated") === "true", null, { timeout: 15000 });
+      await page.waitForFunction(() => window.__oepIncludesLoaded === true, null, { timeout: 15000 });
     } else {
       console.log(`  ✓ ${route} returned ${response.status()}\n`);
       continue;
@@ -142,6 +164,7 @@ async function checkSite(browser, testUrl, origin) {
     console.log("");
   }
 
+  await Promise.all(consoleErrors);
   console.log("--------------------------------------------------------------------------------");
   console.log(`Total Checks: ${totalTests} | Passed: ${passedTests} | Failed: ${failures.length}`);
   console.log("--------------------------------------------------------------------------------\n");

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 .DEFAULT_GOAL := help
-.PHONY: help build website serve test-website build-components test package
+.PHONY: help build website serve test-website test-website-container build-components test package
 
 PROJECT_NAME := robotics-ai-suite
 
@@ -16,6 +16,14 @@ test-website: ## Test the built documentation website
 	test -s docs/website/build/index.html
 	test -s docs/website/build/development-stack/ai-suite-robotics/index.html
 	npm run test:website --prefix docs/website
+
+test-website-container: ## Test the built website in the Playwright container
+	test -s docs/website/build/index.html
+	test -d docs/website/node_modules/playwright
+	podman run --rm --userns=keep-id --user "$$(id -u):$$(id -g)" \
+		-v "$(CURDIR)/docs/website:/workspace:ro,Z" -w /workspace \
+		-e BASE_URL -e REQUIRE_WEBKIT=1 -e NO_PROXY=localhost,127.0.0.1 -e no_proxy=localhost,127.0.0.1 \
+		mcr.microsoft.com/playwright:v1.63.0-noble npm run test:website
 
 serve: ## Build and serve the documentation website locally
 	@set -eu; \
