@@ -10,6 +10,8 @@ export default function FooterCopyright(): React.JSX.Element {
 
   useEffect(() => {
     const controller = new AbortController();
+    const abortOnPageHide = () => controller.abort();
+    window.addEventListener("pagehide", abortOnPageHide);
 
     async function loadFooter() {
       try {
@@ -36,7 +38,10 @@ export default function FooterCopyright(): React.JSX.Element {
     }
 
     void loadFooter();
-    return () => controller.abort();
+    return () => {
+      window.removeEventListener("pagehide", abortOnPageHide);
+      controller.abort();
+    };
   }, [includeUrl]);
 
   return <div className="footer__copyright" ref={container} />;
