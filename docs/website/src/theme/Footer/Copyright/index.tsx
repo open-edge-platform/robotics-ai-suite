@@ -10,7 +10,9 @@ export default function FooterCopyright(): React.JSX.Element {
 
   useEffect(() => {
     const controller = new AbortController();
-    const abortOnPageHide = () => controller.abort();
+    const abortOnPageHide = (event: PageTransitionEvent) => {
+      if (!event.persisted) controller.abort();
+    };
     window.addEventListener("pagehide", abortOnPageHide);
 
     async function loadFooter() {

@@ -88,7 +88,7 @@ async function checkSite(browser, testUrl, origin) {
   });
   page.on("console", (message) => {
     if (message.type() === "error" && message.location().url.startsWith(origin)) {
-      consoleErrors.push(message.args()[1]?.evaluate((error) => error?.message || String(error))
+      consoleErrors.push(Promise.resolve(message.args()[1]?.evaluate((error) => error?.message || String(error)))
         .catch(() => "unavailable")
         .then((detail) => failures.push(`Browser console error: ${message.text()}${detail ? ` ${detail}` : ""}`)));
     }
