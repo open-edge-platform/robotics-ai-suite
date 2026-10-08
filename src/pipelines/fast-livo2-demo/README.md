@@ -27,7 +27,7 @@ alternative SLAM backend without forking the reference navigation stack.
 
 This work is based on the open-source
 [FAST-LIVO2](https://github.com/hku-mars/FAST-LIVO2.git) repository, pinned in
-[.gitmodules](https://github.com/open-edge-platform/edge-ai-suites/blob/main/.gitmodules) at the upstream commit the patches below
+[.gitmodules](https://github.com/open-edge-platform/robotics-ai-suite/blob/main/.gitmodules) at the upstream commit the patches below
 apply to.
 
 | Patch | Enhancement |
@@ -47,9 +47,9 @@ automate exactly those commands via [scripts](https://github.com/open-edge-platf
 
 ```bash
 # 1. Fetch the pristine upstream submodule
-git submodule update --init robotics-ai-suite/pipelines/fast-livo2-demo/FAST-LIVO2
+git submodule update --init src/pipelines/fast-livo2-demo/FAST-LIVO2
 
-cd robotics-ai-suite/pipelines/fast-livo2-demo/scripts
+cd src/pipelines/fast-livo2-demo/scripts
 
 # 2. One-time host dependencies (needs sudo; safe to re-run)
 ./install_deps.sh
@@ -221,7 +221,7 @@ Everything above is what `scripts/*.sh` automate. This section spells out the
 same steps by hand — for anyone who'd rather not run scripts, or who's
 forking this pipeline and wants to see exactly what each step does before
 changing it. Every path/value below is one of `scripts/env.sh`'s own
-defaults; run these commands from inside `pipelines/fast-livo2-demo` (all
+defaults; run these commands from inside `src/pipelines/fast-livo2-demo` (all
 relative paths are relative to that directory).
 
 ### 1. Host dependencies

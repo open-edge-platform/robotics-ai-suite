@@ -23,7 +23,7 @@ alternative LIO backend without forking the reference navigation stack.
 This work is based on the open-source
 [Point-LIO](https://github.com/hku-mars/Point-LIO.git) repository
 (`point-lio-with-grid-map` branch), pinned in
-[.gitmodules](https://github.com/open-edge-platform/edge-ai-suites/blob/main/.gitmodules) at the upstream commit the patch below
+[.gitmodules](https://github.com/open-edge-platform/robotics-ai-suite/blob/main/.gitmodules) at the upstream commit the patch below
 applies to.
 
 | Patch | Change |
@@ -42,9 +42,9 @@ immune to PTP clock steps) to `Point-LIO/Log/point_lio_profiling.csv`.
 ```bash
 # 1. Fetch the pristine upstream submodule (no --recursive needed - this
 # Point-LIO branch has no nested submodule)
-git submodule update --init robotics-ai-suite/pipelines/point-lio-demo/Point-LIO
+git submodule update --init src/pipelines/point-lio-demo/Point-LIO
 
-cd robotics-ai-suite/pipelines/point-lio-demo/scripts
+cd src/pipelines/point-lio-demo/scripts
 
 # 2. One-time host dependencies (needs sudo; safe to re-run)
 ./install_deps.sh
@@ -227,7 +227,7 @@ Everything above is what `scripts/*.sh` automate. This section spells out
 the same steps by hand — for anyone who'd rather not run scripts, or who's
 forking this pipeline and wants to see exactly what each step does before
 changing it. Every path/value below is one of `scripts/env.sh`'s own
-defaults; run these commands from inside `pipelines/point-lio-demo` (all
+defaults; run these commands from inside `src/pipelines/point-lio-demo` (all
 relative paths are relative to that directory, matching `env.sh`'s own
 `DEMO_DIR`).
 
