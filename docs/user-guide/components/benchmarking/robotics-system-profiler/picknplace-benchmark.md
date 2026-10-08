@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 # Pick & Place Pipeline Benchmark
 
 This benchmark measures KPI performance of the
-[Pick & Place Simulation](../../middleware/gazebo/reference_applications/picknplace.md)
+[Pick & Place Simulation](../../../software_references/stationary_arm/simulation/picknplace.md)
 — a stationary arm pipeline where two UR5 robotic arms coordinate with a
 TurtleBot3 AMR on a conveyor belt using Nav2 and MoveIt2.
 
@@ -100,7 +100,7 @@ uv run python src/visualize_gpu.py monitoring_sessions/picknplace/bench_20260319
 
 | Problem | Fix |
 |---------|-----|
-| Simulation fails to launch | Ensure `picknplace-simulation` package is installed (see [Pick & Place tutorial](../../middleware/gazebo/reference_applications/picknplace.md)) |
+| Simulation fails to launch | Ensure `picknplace-simulation` package is installed (see [Pick & Place tutorial](../../../software_references/stationary_arm/simulation/picknplace.md)) |
 | No GPU data in results | Use `--gpu` flag or verify `intel_gpu_top` is installed on the target |
 | Benchmark stops early | Increase `PN_TIMEOUT` — the full pick-and-place cycle can take up to 5 minutes |
 | MoveIt2 instability | Run with CycloneDDS: `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp bash src/picknplace_run.sh` |

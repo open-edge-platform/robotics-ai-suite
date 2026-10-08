@@ -16,7 +16,7 @@ configure ROS2 before continuing.
 Follow the installation steps in each tutorial before running benchmarks:
 
 - [Wandering AMR Simulation](../../../software_references/amr/simulation/wandering_sim.md)
-- [Pick & Place Simulation](../../middleware/gazebo/reference_applications/picknplace.md)
+- [Pick & Place Simulation](../../../software_references/stationary_arm/simulation/picknplace.md)
 
 ## 3. Install the Robotics System Profiler Package
 

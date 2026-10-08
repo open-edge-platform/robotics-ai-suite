@@ -184,7 +184,7 @@ docker run -it \
 3. You can download our fine-tuned weights from this link: [Download Link](https://eci.intel.com/embodied-sdk-docs/_downloads/RDT-sim-ft-weights.zip), and then follow the instructions in `<rdt_SOURCE_CODE_PATH>/scripts/convert/README.md` to convert the model to the OpenVINO™ format.
 
    > [!NOTE]
-   > For detailed instructions on the model conversion process, refer to [OpenVINO™ Supported Models - RDT](../../../components/ai_resources/openvino/models/model_rdt.md).
+   > For detailed instructions on the model conversion process, refer to [OpenVINO™ Supported Models - RDT](../../../ai_resources/openvino/models/model_rdt.md).
    >
    > Of course, you can download [the pre-trained RDT-1B weights](https://hf-mirror.com/robotics-diffusion-transformer/rdt-1b) from the Hugging Face Hub, but it is recommended to fine-tune the weights with ALOHA dataset for better performance to achieve the best results in the ALOHA MUJOCO simulation tasks.
 

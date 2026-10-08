@@ -122,7 +122,7 @@ convert_model.export_onnx(output_dir, ckpt_name)
 
 > [!NOTE]
 > Make sure OpenVINO™ is installed by following the official guide:
-> [Install OpenVINO™ via pip](../../developer_tools/openvino.md)
+> [Install OpenVINO™ via pip](../index.md)
 
 #### 6. Convert ONNX to OpenVINO™ IR Format
 

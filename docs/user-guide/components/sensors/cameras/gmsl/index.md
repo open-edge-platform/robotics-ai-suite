@@ -290,5 +290,5 @@ Your camera is now setup. This is a good chance to fetch a live image from your 
 ### Next Steps
 
 Now that your GMSL camera is properly connected, you can test out using it with various samples or immediately use in your robotics solution:
-- Use OpenVINO™ to stream GMSL video data into a YOLO-based computer vision sample: [OpenVINO™ RealSense AI Demo](../../../ai_resources/openvino/reference_applications/openvino_multicam_demo.md)
+- Use OpenVINO™ to stream GMSL video data into a YOLO-based computer vision sample: [OpenVINO™ RealSense AI Demo](../../../../ai_resources/openvino/reference_applications/openvino_multicam_demo.md)
 - Use ROS 2 to ingest camera frames for use in a ROS-powered application: [RealSense ROS2 Node](../../reference_applications/realsense-ros2.md)
