@@ -98,7 +98,7 @@ python dynamo.py export --encoder vitb --output weights/vitb.onnx --use-dynamo -
 
 > [!NOTE]
 > Make sure OpenVINO™ is installed by following the guide:
-> [Install OpenVINO™ via pip](../../developer_tools/openvino.md)
+> [Install OpenVINO™ via pip](../index.md)
 
 Once the model is in ONNX format, it can be converted to OpenVINO™'s Intermediate Representation (IR) format using OpenVINO™'s command-line model conversion tool, `ovc`.
 

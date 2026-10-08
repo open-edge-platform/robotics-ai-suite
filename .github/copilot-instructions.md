@@ -1,77 +1,52 @@
-# Copilot Instructions for edge-ai-suites
+# Copilot Instructions for Robotics AI Suite
 
 ## Repository Overview
 
-This is a monorepo containing multiple Intel Edge AI Suites, each in its own top-level directory:
+This repository contains the Robotics AI Suite:
 
-- `education-ai-suite/` — Smart classroom application
-- `federal-and-aerospace-ai-suite/` — Deterministic threat detection, handheld multi-modal
-- `health-and-life-sciences-ai-suite/` — NICU Warmer, multi-modal patient monitoring
-- `manufacturing-ai-suite/` — Industrial edge insights (vision, time-series, multimodal), HMI augmented worker
-- `metro-ai-suite/` — Smart NVR, live video analysis, smart traffic, agentic RAG, VMS adapter, etc.
-- `retail-ai-suite/` — Loss prevention, order accuracy, voice-enabled interactions
-- `robotics-ai-suite/` — ROS2-based components (SLAM, mapping, object detection, multicam)
+- `src/components/` — ROS 2 components and applications, including mapping, navigation, perception, simulation, and benchmarking
+- `src/pipelines/` — sample robotics and OpenVINO pipelines
+- `src/robot-vision-control/` — stationary robot vision and control
+- `docs/user-guide/` — Sphinx technical documentation
+- `docs/website/` — Docusaurus website that includes the built user guide
 
-### Navigation
-
-When working on a specific component, check for a local `AGENTS.md` file first — it contains authoritative per-component instructions:
-- [federal-and-aerospace-ai-suite/handheld-multi-modal/AGENTS.md](../federal-and-aerospace-ai-suite/handheld-multi-modal/AGENTS.md)
-- [metro-ai-suite/metro-sdk-manager/AGENTS.md](../metro-ai-suite/metro-sdk-manager/AGENTS.md)
-- [metro-ai-suite/live-video-analysis/live-video-captioning/AGENTS.md](../metro-ai-suite/live-video-analysis/live-video-captioning/AGENTS.md)
-- [manufacturing-ai-suite/industrial-edge-insights-vision/win-vision-ai/.github/copilot-instructions.md](../manufacturing-ai-suite/industrial-edge-insights-vision/win-vision-ai/.github/copilot-instructions.md)
-
-Each suite directory has its own `README.md` with suite-level context. Each sub-project within a suite has its own `README.md` with setup and usage details.
+Check the component's `README.md` and any local `AGENTS.md` before changing it.
 
 ## Languages & Frameworks
 
-- **Primary language:** Python (FastAPI, Gradio, LangChain, OpenVINO, PyTorch)
-- **Secondary:** C++ (robotics-ai-suite ROS2 components), Bash (deploy scripts, test harnesses)
-- **Frontend:** JavaScript/TypeScript (React, Vite) for UI components
-- **Infrastructure:** Docker, Docker Compose, Helm, Kubernetes
-- **ML/AI:** OpenVINO, OVMS (OpenVINO Model Server), HuggingFace, Intel DL Streamer
+- **Robotics:** C++ and Python with ROS 2, CMake, colcon, and launch files
+- **ML/AI:** OpenVINO and PyTorch in relevant components and pipelines
+- **Documentation and website:** Sphinx/MyST and Docusaurus (JavaScript/TypeScript)
+- **Supporting tooling:** Bash, Make, and component-specific container or packaging files
 
 ## Build Systems
 
-- **Make** is the standard build orchestrator. Every suite and most sub-projects have a `Makefile`; run `make help` to list all available targets for a component.
-- **Docker Compose** (`docker compose`) is the deployment mechanism. Projects use `docker-compose.yml` / `docker-compose.yaml` with `.env` files for configuration.
-- **Helm** charts are provided for Kubernetes deployment (found in `helm/` directories).
-- **Python packaging:** Mix of `requirements.txt`, `pyproject.toml` (with setuptools or uv), and `pip`.
-- **ROS2 (robotics):** `colcon build` with CMakeLists.txt and Debian packaging via `dpkg-buildpackage`.
+- Run `make help` at the root or within a component to discover available targets. Root `make build`, `make website`, and `make serve` build or serve the documentation website; root `make build-components`, `make test`, and `make package` are not implemented.
+- Use `make -C docs build` for the Sphinx user guide and `make test-website` after building the complete site.
+- ROS 2 components have their own Make/CMake/colcon workflows. Use the relevant component's README and Makefile for build and test commands.
+- Python packages and containerized pipelines have local dependency and deployment instructions; do not assume one deployment mechanism applies across the repository.
 
 ## Testing Patterns
 
-- **Framework:** pytest (Python), Google Test (C++), Robot Framework (manufacturing-ai-suite/vision)
-- **Structure:** `tests/` directory at project root, with `tests/unit/` and `tests/functional/` or `tests/integration/` subdirectories
-- **Config:** `pytest.ini` or `[tool.pytest.ini_options]` in `pyproject.toml`
-- **Async:** `pytest-asyncio` with `asyncio_mode = "auto"`
-- **Fixtures:** Shared in `conftest.py` files; environment-based configuration via `monkeypatch.setenv`
-- **Naming:** `test_*.py` files, `Test*` classes, `test_*` functions
-- **Markers:** `@pytest.mark.unit`, `@pytest.mark.mqtt`, `@pytest.mark.opcua`, `@pytest.mark.gpu`, `@pytest.mark.longrun`
+- ROS 2 components use Google Test, launch testing, and/or pytest as documented by each component.
+- Python packages use local pytest configuration where available; do not assume a repository-wide test layout or marker set.
+- The documentation website has Playwright integration tests via `make test-website`.
 
 ## Linting & Formatting
 
-- **Ruff** (lint + format) — configured via `pyproject.toml` or `.pre-commit-config.yaml`
-- **super-linter** (Docker-based) — used by robotics-ai-suite; validates YAML, JSON, Python (pylint/flake8), Bash, Markdown, clang-format
-- **ShellCheck** — for all `.sh` files
-- **pre-commit** hooks: trailing-whitespace, end-of-file-fixer, check-yaml, check-json, mypy, ruff, shellcheck, helmlint
-- **Bandit** — Python security static analysis
+- Follow the component's Makefile and local lint configuration for Python, C++, and shell changes.
+- Validate documentation with the Sphinx build and website tests when affected.
 
 ## Docker Patterns
 
-- Multi-stage Dockerfiles common across suites
-- Base images typically from `intel/` registry or `openvino/` images
-- `COPYLEFT_SOURCES` build arg pattern for including source of copyleft dependencies
-- `.env` files for credentials and configuration (never commit secrets)
-- Device mounting patterns: `/dev/dri` (GPU), `/dev/accel` (accelerators)
-- Image tagging: `REGISTRY/component:TAG` with pinned version tags (for example `2026.1.0`) in production; avoid `:latest`
+- Check the specific component or pipeline for its container build and device requirements; many ROS 2 components also support native builds.
+- Use environment variables or uncommitted `.env` files for credentials. Pin production image versions; do not introduce `:latest`.
 
 ## CI/CD Workflows
 
 - GitHub Actions in `.github/workflows/`
-- Per-suite and per-component workflows triggered on path-based changes
-- Common patterns: path filtering with `dorny/paths-filter`, pinned action SHAs, `persist-credentials: false`
-- Scans: Trivy (container + filesystem), Gitleaks (secrets), Bandit (Python security), ClamAV (antivirus), ShellCheck
-- Dependabot configured for dependency updates
+- Website deployment and component workflows live in `.github/workflows/`; consult the relevant workflow before assuming which tests or scans run.
+- Keep action permissions scoped and pin third-party actions to full commit SHAs.
 
 ## License Conventions
 
@@ -88,27 +63,22 @@ Each suite directory has its own `README.md` with suite-level context. Each sub-
 ## Agent Behavior
 
 ### Scope
-- **Stay within the component being asked about.** Do not modify files outside the active suite or sub-project unless explicitly instructed.
+- **Stay within the component or documentation area being asked about.** Do not modify unrelated components or pipelines unless explicitly instructed.
 - Before editing, read the target file and the local `README.md`. If a local `AGENTS.md` exists, treat it as the authoritative override for that component.
 - Do not add features, refactor code, introduce new dependencies, or change APIs beyond what was directly requested.
 
 ### Context management
-- This is a large monorepo. Load only files relevant to the current task; do not speculatively read files from other suites.
-- Prefer `make help` to discover available targets rather than listing all Makefiles.
-- Prefer targeted `grep`/search over reading entire directories.
+- Load only files relevant to the current task; do not speculatively read other components or pipelines.
+- Prefer `make help` in the relevant directory to discover available targets.
+- Prefer targeted search over reading entire directories.
 
 ## Key Conventions
 
-1. **Environment variables** drive configuration — use `.env` files, never hardcode secrets
-2. **Intel GPU support** — code should handle GPU/CPU/NPU device selection via env vars (e.g., `VLM_TARGET_DEVICE`)
-3. **OpenVINO** is the inference runtime — models are typically in IR format (.xml/.bin)
-4. **OVMS** (OpenVINO Model Server) serves models via OpenAI-compatible API
-5. **Docker is required** — all apps run containerized; `make deploy` is the standard entry point
-6. **Security scanning** is mandatory — Trivy, Bandit, Gitleaks, ShellCheck run in CI
-7. **No `:latest` tags** in production Docker image references — pin versions
-8. **Proxy awareness** — many scripts support `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`
-9. **Shell strict mode** — use `set -euo pipefail` for Bash scripts (`#!/usr/bin/env bash`), and POSIX-safe strict mode (`set -eu`) for `sh` scripts
-10. **HuggingFace models** downloaded at runtime via `HF_TOKEN` environment variable
+1. **ROS 2** components rely on local launch, build, and package instructions; select the supported ROS distribution for the component.
+2. **OpenVINO** pipelines may select CPU, GPU, or NPU devices; follow the relevant pipeline's configuration rather than assuming a universal device variable.
+3. **Environment variables** drive configuration; do not hardcode or commit secrets.
+4. **Container and proxy configuration** is component-specific; preserve existing `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` handling where present.
+5. **Shell strict mode** — use `set -euo pipefail` for Bash scripts (`#!/usr/bin/env bash`) and `set -eu` for `sh` scripts.
 
 ## Security
 
@@ -158,4 +128,3 @@ Load [`./skills/security-review/SKILL.md`](./skills/security-review/SKILL.md) wh
 ## Contributing
 
 See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for PR guidelines and commit signing requirements.
-Partial cloning is supported — you can clone just the suite you're working on (see [Contributing to Open Edge Platform](https://docs.openedgeplatform.intel.com/canonical/OEP-articles/contribution-guide.html#repository-cloning-partial-cloning)).

@@ -59,7 +59,7 @@
 
    (ov_inference_troubleshooting)=
 
-   If you encounter errors when running OpenVINO™ inference of models from [OpenVINO™ Supported Models](../components/ai_resources/openvino/models/index.md), check the OpenVINO™ version used for model conversion and the runtime version used for inference. The OpenVINO™ version used for model conversion should be the same as the runtime version used for inference. Otherwise, unexpected errors may occur, especially if the model is converted using a newer version and the runtime is an older version.
+   If you encounter errors when running OpenVINO™ inference of models from [OpenVINO™ Supported Models](../ai_resources/openvino/models/index.md), check the OpenVINO™ version used for model conversion and the runtime version used for inference. The OpenVINO™ version used for model conversion should be the same as the runtime version used for inference. Otherwise, unexpected errors may occur, especially if the model is converted using a newer version and the runtime is an older version.
 
    You can check the OpenVINO™ version used for model conversion at the end of the OpenVINO™ IR file `*.xml`. For example:
 
