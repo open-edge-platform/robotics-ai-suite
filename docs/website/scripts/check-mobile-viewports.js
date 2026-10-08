@@ -102,6 +102,7 @@ async function checkSite(browser, testUrl, origin) {
     }
     if (hydrated) {
       await page.waitForFunction(() => document.documentElement.getAttribute("data-has-hydrated") === "true", null, { timeout: 15000 });
+      await page.waitForFunction(() => window.__oepIncludesLoaded === true, null, { timeout: 15000 });
     } else {
       console.log(`  ✓ ${route} returned ${response.status()}\n`);
       continue;
