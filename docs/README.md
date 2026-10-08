@@ -26,7 +26,9 @@ For PR-previews or alternate base paths:
 BASE_URL=/pr/2/ PORT=3002 make serve
 ```
 
-After building with `make website`, run `make test-website` to check the built site with Chromium. If the browser is not installed locally, run `npm exec --prefix docs/website -- playwright install chromium` first. The test target checks generated pages, responsive layout, client-side model routing, and browser errors without requiring a separate server.
+After building with `make website`, run `make test-website` to check the built site with Chromium, Firefox, and WebKit. Install the browsers locally with `npm exec --prefix docs/website -- playwright install chromium firefox webkit`. The test target checks generated pages, responsive layout, client-side model routing, and browser errors without requiring a separate server. If WebKit cannot launch because the host lacks browser libraries, the local test reports it as skipped; CI requires all three browsers.
+
+On Fedora or another host without Playwright's WebKit dependencies, run `make test-website-container` after `make website`. This uses rootless Podman and the Playwright 1.63.0 Ubuntu image to run all three browsers against the built site, with WebKit required. The container mounts `docs/website` read-only and uses its installed `node_modules`. For alternate base paths, pass the same `BASE_URL` used to build the site, such as `BASE_URL=/pr/2/ make test-website-container`.
 
 ### Sphinx User Guide Only
 

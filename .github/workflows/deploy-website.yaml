@@ -53,13 +53,14 @@ jobs:
           HF_ORG: ${{ vars.HF_ORG }}
         run: npm run build
 
-      - name: Install browser for website tests
+      - name: Install browsers for website tests
         working-directory: docs/website
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Test website
         env:
           BASE_URL: ${{ github.event_name == 'pull_request' && format('/pr/{0}/', github.event.number) || '/' }}
+          REQUIRE_WEBKIT: '1'
         run: make test-website
 
       - name: Check PR preview routes
