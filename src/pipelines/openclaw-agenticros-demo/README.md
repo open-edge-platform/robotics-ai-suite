@@ -46,19 +46,19 @@ The system enables natural language control of the robot, including:
 
 ## Installation
 
-> Path note: this guide uses `~/edge-ai-suites/...` as an example checkout root. If you cloned the repository elsewhere, replace those paths with your local repository root.
+> Path note: this guide uses `~/robotics-ai-suite/...` as an example checkout root. If you cloned the repository elsewhere, replace those paths with your local repository root.
 
 ### 0. Clone Deployment Repository
 
 First, clone this deployment folder with all submodules:
 
 ```bash
-# Clone the edge-ai-suites repository (if not already done)
+# Clone the robotics-ai-suite repository (if not already done)
 cd ~
-git clone https://github.com/open-edge-platform/edge-ai-suites.git -b main
+git clone https://github.com/open-edge-platform/robotics-ai-suite.git -b main
 
 # Navigate to the deployment folder
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo
 
 # Initialize all submodules
 git submodule update --init --recursive
@@ -103,7 +103,7 @@ source ~/env_openvino/bin/activate
 
 # Install OpenVINO conversion tools from requirements file
 # Use the included requirements file (or download from robot-claw repo)
-pip install -r ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/requirements/qwen3_vl_openvino_requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+pip install -r ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/requirements/qwen3_vl_openvino_requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 # Convert the model
 optimum-cli export openvino \
@@ -305,7 +305,7 @@ sudo apt-get install -y nodejs
 # nvm use 22
 
 # Initialize and checkout OpenClaw submodule
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo
 git submodule update --init openclaw
 
 # Install dependencies and build (requires Node.js 22.19.0+)
@@ -439,7 +439,7 @@ Initialize and build the AgenticROS workspace:
 
 ```bash
 # Initialize and checkout AgenticROS submodule (pinned to commit 675f108)
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo
 git submodule update --init agenticros
 
 # Apply patches for JAKA Kargo and warehouse features (4 patches in sequence)
@@ -455,7 +455,7 @@ git am ../patches/agenticros/*.patch
 # done
 
 # Initialize and setup JAKA_KARGO submodule
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo
 git submodule update --init JAKA_KARGO
 
 # Apply JAKA_KARGO patches (1 patch for Gazebo integration)
@@ -463,7 +463,7 @@ cd JAKA_KARGO
 git am ../patches/jaka_kargo/*.patch
 
 # Initialize and setup aws-robomaker-small-warehouse-world submodule
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo
 git submodule update --init aws-robomaker-small-warehouse-world
 
 # Apply aws-robomaker-small-warehouse-world patches (1 patch for model URI updates)
@@ -471,12 +471,12 @@ cd aws-robomaker-small-warehouse-world
 git am ../patches/aws_warehouse_world/*.patch
 
 # Link both JAKA_KARGO and aws-robomaker-small-warehouse-world to AgenticROS ROS2 workspace
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/src
-ln -sf ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/JAKA_KARGO/jaka_kargo_ros2/src/jaka_kargo_description .
-ln -sf ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/aws-robomaker-small-warehouse-world .
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/src
+ln -sf ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/JAKA_KARGO/jaka_kargo_ros2/src/jaka_kargo_description .
+ln -sf ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/aws-robomaker-small-warehouse-world .
 
 # Install Node.js dependencies and build TypeScript packages
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros
 pnpm install
 
 # Build the packages for OpenClaw plugin integration
@@ -493,7 +493,7 @@ colcon build --packages-select agenticros_msgs agenticros_bringup agenticros_dis
 source install/setup.bash
 
 # Source the workspace in bashrc for future sessions
-echo "source ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash" >> ~/.bashrc
+echo "source ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash" >> ~/.bashrc
 ```
 
 **Key packages in the AgenticROS workspace:**
@@ -517,7 +517,7 @@ cat > ~/.local/bin/openclaw-gateway-with-ros.sh << 'EOF'
 set -eo pipefail
 
 source /opt/ros/jazzy/setup.bash
-source ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash
+source ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash
 
 exec openclaw gateway
 EOF
@@ -551,7 +551,7 @@ systemctl --user show openclaw-gateway.service --property=Environment | grep ROS
 Run the helper script to configure AgenticROS plugin:
 
 ```bash
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros
 ./scripts/setup_gateway_plugin.sh
 
 # Restart gateway to load plugin configuration
@@ -598,7 +598,7 @@ The helper script adds this configuration (or add manually if needed):
     },
     "allow": ["agenticros", "memory-core", "vllm"],
     "load": {
-      "paths": ["~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros/packages/agenticros"]
+      "paths": ["~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros/packages/agenticros"]
     }
   }
 }
@@ -634,7 +634,7 @@ Launch the JAKA Kargo robot in AWS Small Warehouse environment with integrated r
 
 ```bash
 # Terminal 1: Start ROS2, Gazebo, and rosbridge
-source ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash
+source ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash
 
 # Launch JAKA Kargo with AWS Warehouse and rosbridge
 ros2 launch agenticros_bringup rosbridge_gazebo.launch.py \
@@ -693,7 +693,7 @@ ros2 launch agenticros_bringup rosbridge_gazebo.launch.py \
 # AWS Small Warehouse no-roof variant
 ros2 launch agenticros_bringup rosbridge_gazebo.launch.py \
     gazebo_launch:=gazebo_small_warehouse.launch.py \
-    warehouse_world:=$HOME/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/src/aws-robomaker-small-warehouse-world/worlds/no_roof_small_warehouse/no_roof_small_warehouse.world \
+    warehouse_world:=$HOME/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/src/aws-robomaker-small-warehouse-world/worlds/no_roof_small_warehouse/no_roof_small_warehouse.world \
     use_gazebo_gui:=true
 
 # If `gz sim` is missing, ensure the Gazebo tools registry path is present.
@@ -706,7 +706,7 @@ OpenClaw gateway is already running as a systemd service (started during setup).
 
 ```bash
 # Terminal 2: Start OpenClaw dashboard
-cd ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/openclaw
+cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/openclaw
 openclaw dashboard
 
 # Expected output will show a URL like:
@@ -804,7 +804,7 @@ mkdir -p ~/.gazebo/models
 # Restore the Gazebo tools registry path if `gz` is missing commands
 export GZ_CONFIG_PATH="/opt/ros/jazzy/opt/gz_tools_vendor/share/gz:${GZ_CONFIG_PATH:-}"
 source /opt/ros/jazzy/setup.bash
-source ~/edge-ai-suites/robotics-ai-suite/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash
+source ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo/agenticros/ros2_ws/install/setup.bash
 
 # Try launching with verbose output
 ros2 launch agenticros_bringup rosbridge_gazebo.launch.py \
