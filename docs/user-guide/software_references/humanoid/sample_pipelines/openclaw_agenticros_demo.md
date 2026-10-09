@@ -49,7 +49,7 @@ The system enables natural language control of the robot, including:
 ## Installation
 
 > [!NOTE]
-> This guide uses `~/edge-ai-suites/...` as an example checkout root. If you cloned
+> This guide uses `~/robotics-ai-suite/...` as an example checkout root. If you cloned
 > the repository elsewhere, replace those paths with your local repository root.
 
 ### 0. Clone Deployment Repository
