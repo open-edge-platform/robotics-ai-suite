@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # Enable Collaborative Visual SLAM Framework on ROS2 Navigation
 
-The Collaborative Visual SLAM Framework can be obtained from [CSLAM link](https://github.com/open-edge-platform/robotics-ai-suite)
+The Collaborative Visual SLAM Framework can be obtained from [CSLAM link](https://github.com/open-edge-platform/edge-ai-suites)
 
 Here are the instructions on how to enable Collaborative Visual SLAM Framework on ROS2 Navigation package
 
