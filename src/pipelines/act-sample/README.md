@@ -8,7 +8,7 @@ In this tutorial, we will introduce how to setup ACT pipeline.
 
 ## Component Documentation
 
-Comprehensive documentation on this component is available here: [Link](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/software_references/humanoid/sample_pipelines/imitation_learning_act.html)
+Comprehensive documentation on this component is available here: [Link](https://developer.robotics.intel.com/development-stack/software_references/humanoid/sample_pipelines/imitation_learning_act/index.html)
 
 ## Changes to 3rd party source
 
@@ -23,7 +23,7 @@ The following patches are provided to enhance the ACT source:
 
 ## Prerequisites
 
-Please make sure you have finished setup steps in [Get Started](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/platform_foundation/getting_started.html) and followed refer to [oneAPI doc](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/components/ai_resources/developer_tools/oneapi.html) to setup Intel® oneAPI packages.
+Please make sure you have finished setup steps in [Get Started](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/index.html) and followed refer to [oneAPI doc](https://developer.robotics.intel.com/development-stack/ai_resources/developer_tools/oneapi/index.html) to setup Intel® oneAPI packages.
 
 ## Installation
 
@@ -41,7 +41,7 @@ Follow the [stationary ALOHA guide](https://docs.trossenrobotics.com/aloha_docs/
 
 > [!IMPORTANT]
 > Intel® Extension for PyTorch workloads are incompatible with the NPU driver. For more details, please refer to the
-> [Troubleshooting page](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/resources/troubleshooting.html).
+> [Troubleshooting page](https://developer.robotics.intel.com/development-stack/resources/troubleshooting/index.html).
 
 Install the Intel® Extension for PyTorch with the following command:
 

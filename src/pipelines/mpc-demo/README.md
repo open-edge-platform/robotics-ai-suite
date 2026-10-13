@@ -22,7 +22,7 @@ Here, we adopted an open-source MPC project named Optimal Control for Switched S
 
 ## Prerequisites
 
-Please make sure you have finished setup steps in [Get Started](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/platform_foundation/getting_started.html) and followed refer to [oneAPI doc](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/components/ai_resources/developer_tools/oneapi.html) to setup Intel® oneAPI packages.
+Please make sure you have finished setup steps in [Get Started](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/index.html) and followed refer to [oneAPI doc](https://developer.robotics.intel.com/development-stack/ai_resources/developer_tools/oneapi/index.html) to setup Intel® oneAPI packages.
 
 ## ROS2 Jazzy Setup
 

@@ -6,7 +6,7 @@ This repository extends the open-source [GR00T-WholeBodyControl](https://github.
 
 ## Prerequisites
 
-- Follow the [Getting Started guide](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/platform_foundation/getting_started.html) to set up the base system.
+- Follow the [Getting Started guide](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/index.html) to set up the base system.
 - NPU driver (> v1.32.0)
 - Ubuntu 24.04 RT release
 - OpenVINO 2026.3, ROS2 Jazzy

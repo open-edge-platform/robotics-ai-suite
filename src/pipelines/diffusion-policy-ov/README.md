@@ -34,8 +34,8 @@ git am ../patches/0001-Modify-README.md-for-OpenVINO-model-conversion.patch
 
 ## Next Steps
 
-After completing the source code setup, please refer to the [Robotics AI Suite documentation](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/software_references/humanoid/sample_pipelines/diffusion_policy.html) to build and run the sample pipeline.
+After completing the source code setup, please refer to the [Robotics AI Suite documentation](https://developer.robotics.intel.com/development-stack/software_references/humanoid/sample_pipelines/diffusion_policy/index.html) to build and run the sample pipeline.
 
 ## Support
 
-For issues related to the OpenVINO optimizations, please consult the [Robotics AI Suite documentation](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/software_references/humanoid/sample_pipelines/diffusion_policy.html) or contact the development team.
+For issues related to the OpenVINO optimizations, please consult the [Robotics AI Suite documentation](https://developer.robotics.intel.com/development-stack/software_references/humanoid/sample_pipelines/diffusion_policy/index.html) or contact the development team.

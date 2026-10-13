@@ -12,7 +12,7 @@ ORB-SLAM3 is one of popular real-time feature-based SLAM libraries able to perfo
 
 ## Component Documentation
 
-Comprehensive documentation on this component is available here: [Link](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/software_references/humanoid/sample_pipelines/ORB_VSLAM.html)
+Comprehensive documentation on this component is available here: [Link](https://developer.robotics.intel.com/development-stack/software_references/humanoid/sample_pipelines/ORB_VSLAM/index.html)
 
 ## Changes to 3rd party source
 
@@ -27,15 +27,15 @@ The following patches are provided to enhance the ORB_SLAM3 source:
 ## Prerequisites
 
 > [!IMPORTANT]
-> Please make sure you have all the prerequisites and installation in [Get Started](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/platform_foundation/getting_started.html) before proceeding.
-> And follow the guide [Install Realsense SDK](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/platform_foundation/getting_started/step_by_step.html#5-install-realsense-camera-sdk) to install Realsense SDK.
+> Please make sure you have all the prerequisites and installation in [Get Started](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/index.html) before proceeding.
+> And follow the guide [Install Realsense SDK](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/step_by_step/index.html#install-realsense-camera-sdk) to install Realsense SDK.
 
 ## Installation
 
 1. Make sure Realsense SDK installed.
 
    If not, follow
-   [Install Realsense SDK](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/platform_foundation/getting_started/step_by_step.html#5-install-realsense-camera-sdk)
+   [Install Realsense SDK](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/step_by_step/index.html#install-realsense-camera-sdk)
    to install Realsense packages.
 
    Here is a minimal installation:
