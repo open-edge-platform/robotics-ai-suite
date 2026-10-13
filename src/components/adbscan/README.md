@@ -409,7 +409,7 @@ Detailed documentation, launch options, and hardware deployment guides are organ
 #### Algorithm & Performance
 
 - [docs/IA-optimized-adbscan-algorithm.md](docs/IA-optimized-adbscan-algorithm.md) — Mathematical formulation of range-adaptive clustering and Intel Architecture CPU vectorization optimizations.
-- [Online Developer Guide](https://developer.robotics.intel.com/development-stack/components/optimized_solutions/adbscan-follow-me/) — Official Intel Edge AI Suites component documentation.
+- [Online Developer Guide](https://developer.robotics.intel.com/development-stack/components/optimized_solutions/adbscan-follow-me/) — Official Intel Robotics AI Suite component documentation.
 
 ## License
 
