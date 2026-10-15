@@ -168,6 +168,11 @@ samp {
   backdrop-filter: none;
 }
 
+/* Kapa widget appears above the header */
+div#kapa-widget-container {
+  z-index: 99999 !important;
+}
+
 .navbar__inner {
   height: 80px;
   max-width: 100%;

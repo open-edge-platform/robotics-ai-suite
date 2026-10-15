@@ -35,4 +35,4 @@ After completing the source code setup, please refer to the [Robotics AI Suite d
 
 ## Support
 
-For issues related to the OpenVINO optimizations, please consult the [Robotics AI Suite documentation](https://docs.openedgeplatform.intel.com/dev/edge-ai-suites/robotics-ai-suite/components/ai_resources/openvino/models/model_idp3.html) or contact the development team.
+For issues related to the OpenVINO optimizations, please consult the [Robotics AI Suite documentation](https://developer.robotics.intel.com/development-stack/ai_resources/openvino/models/model_idp3/index.html) or contact the development team.
