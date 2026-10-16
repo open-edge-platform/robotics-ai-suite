@@ -109,7 +109,17 @@ preparing a system for Humanoid workflows.
 | ROS 2 | Humble Hawksbill |
 | Kernel | Intel ECI 6.12.8 real-time kernel with PREEMPT_RT support |
 
-This configuration supports real-time motion-control, computer-vision,
+### Intel® Core™ Ultra Series 3
+
+| Component | Validated configuration |
+| --- | --- |
+| Processor | Intel® Core™ Ultra X7 358H processor; 1.9 GHz base frequency, 4.8 GHz maximum turbo frequency, and 25 W base power |
+| Memory | 32 GB dual-channel LPDDR5X memory, 8533 MT/s |
+| Operating system | Canonical Ubuntu 24.04 LTS (Noble Numbat), 64-bit Desktop |
+| ROS 2 | Jazzy Jalisco |
+| Kernel | Intel ECI 6.17.11 real-time kernel with PREEMPT_RT support |
+
+These configurations support real-time motion-control, computer-vision,
 imitation-learning, and large-model workflows. Individual pipelines can require
 additional model, sensor, firmware, or package setup.
 
