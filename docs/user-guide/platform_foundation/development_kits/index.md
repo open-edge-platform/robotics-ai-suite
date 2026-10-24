@@ -19,6 +19,16 @@ the hardware and start development quickly.
 | [AAEON UP WCL Edge](up-wcl-edge/index.md) | Intel® Core™ 7 processor 350 / Core™ 5 processor 320 / Core™ 3 processor 304 | [link](https://www.aaeon.com/en/product/detail/up-systems-up-wcl-edge) | Compact edge system with an active cooler and onboard LPDDR5 memory. No GMSL or MIPI CSI camera connectivity — use USB cameras. For research and development use only. |
 | [ASUS NUC 16](asus-nuc-16/index.md) | Intel® Core™ Series 3 processors | [link](https://builders.intel.com/ecosystem-engagement/solution-hub/edge-ai-catalog/partner-spotlight/asus-nuc-16-338) | Ultra-compact, tool-less upgradeable system with up to 64 GB DDR5-6400 memory, Wi-Fi 7, and dual LAN. No GMSL or MIPI CSI camera connectivity — use USB cameras. For research and development use only. |
 
+## Supported Configurations
+
+```{include} ../getting_started/fragment_configurations.md
+```
+
+Use the [Runtime](../../components/runtime/index.md) guidance to configure the ROS 2
+distribution for the selected system profile. Before installing a robot application,
+review its Blueprint for compatible hardware, sensor, firmware, and package
+requirements.
+
 
 :::{toctree}
 :caption: Development Kits
