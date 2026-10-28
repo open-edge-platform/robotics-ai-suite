@@ -53,6 +53,8 @@ Every definition lists the `proxy` SDK first. It reads `src/workshops/sdks/proxy
 src/workshops/scripts/configure-proxy.sh       # writes proxy.env, or removes it when no proxy is set
 ```
 
+To write the file by hand instead, copy [proxy.env.example](../sdks/proxy/hooks/proxy.env.example) to `proxy.env` in the same directory and set your values.
+
 Inside the workshop it configures apt, `/etc/environment`, curl, wget, cargo and dirmngr. Run the script again after the host's proxy changes, then `workshop refresh <name>` to rebuild existing workshops with it.
 
 ## First workshop: check the GPU and NPU
