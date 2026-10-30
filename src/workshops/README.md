@@ -43,6 +43,8 @@ Ubuntu 26.04 (ROS 2 Lyrical): the suite installer, the AMR repo and the OpenVINO
 
 ## Documentation
 
+Step-by-step tutorials for every workshop are in the user guide: [Canonical Workshop Environments](https://developer.robotics.intel.com/development-stack/components/virtualization/workshops/) (source in [`docs/user-guide/components/virtualization/workshops/`](../../docs/user-guide/components/virtualization/workshops/index.md)). The pages below are the reference for working on the workshops themselves.
+
 - [Getting started](docs/getting-started.md): prerequisites, first workshops, everyday commands
 - [Architecture](docs/architecture.md): SDKs, plugs, Jazzy/Humble pairs, refresh behaviour, adding a workshop
 - [Humble and interoperability](docs/humble-and-interop.md): Humble results and issues, mixing distros, ROS 2 from the host
