@@ -1,10 +1,10 @@
-# GMSL Camera Guide
+# GMSL Cameras
 
 Gigabit Multimedia Serial Link (GMSL) is a high-speed serial interface for
 connecting cameras to a processing platform. This guide covers supported camera
 modules, GMSL Add-in-Card design, and GMSL `SerDes` configuration.
 
-## Validated Cameras
+## Supported GMSL Cameras
 
 ```{include} fragment_camera_table_gmsl.md
 ```
@@ -39,10 +39,10 @@ During installation, `intel-mipi-gmsl-dkms` presents a configuration dialog prom
 
 Select the appropriate deserializer based on the your system's IPU below. Unlisted platforms may be unsupported:
 
-| Intel Processor | IPU Version | Deserializer |
-| --- | --- | --- |
-| Series 3 Intel® Core™ Ultra Processor | IPU7 | `max96724` |
-| Series 2 Intel® Core™ Ultra Processor | IPU6 | `max9296`
+| Code Name | Intel Processor | IPU Version | Deserializer |
+| --- | --- | --- | --- |
+| Panther Lake | Intel® Core™ Ultra Series 3 Processors | IPU7 | `max96724` |
+| Arrow Lake | Intel® Core™ Ultra Series 2 Processors | IPU6 | `max9296`
 
 ![GMSL deserializer selection dialog](../../../../images/gmsl/gmsl-dkms-select.png "gmsl deserializer selection dialog")
 
@@ -89,7 +89,7 @@ If you are configuring both D3 and RealSense cameras on the same system, you mus
   :sync: realsense
 
 
-  The following scripts are used for RealSense D457.
+  The following scripts are used for Realsense D457.
   Execute both in the order given below:
 
   ```sh
@@ -290,5 +290,5 @@ Your camera is now setup. This is a good chance to fetch a live image from your 
 ### Next Steps
 
 Now that your GMSL camera is properly connected, you can test out using it with various samples or immediately use in your robotics solution:
-- Use OpenVINO™ to stream GMSL video data into a YOLO-based computer vision sample: [OpenVINO™ RealSense AI Demo](../../../../ai_resources/openvino/reference_applications/openvino_multicam_demo.md)
+- Use OpenVINO to stream GMSL video data into a YOLO-based computer vision sample: [OpenVINO RealSense AI Demo](../../../../ai_resources/openvino/reference_applications/openvino_multicam_demo.md)
 - Use ROS 2 to ingest camera frames for use in a ROS-powered application: [RealSense ROS2 Node](../../reference_applications/realsense-ros2.md)

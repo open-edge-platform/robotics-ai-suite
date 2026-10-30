@@ -2,9 +2,10 @@
 
 Sample pipelines are provided to demonstrate the capabilities of the Humanoid Toolkit. Review the [validated hardware configuration](../../hardware_blueprints/humanoid/index.md#validated-configuration) before running a pipeline.
 
-These pipelines are designed to showcase core Humanoid Toolkit features, including imitation learning, vision-based manipulation and SLAM. Each pipeline includes a detailed description, along with instructions for running the sample code on your system.
-
-
+These pipelines are designed to showcase core Humanoid Toolkit features, including imitation
+learning, vision-based manipulation, and Simultaneous Localization and Mapping (SLAM). Each
+pipeline includes a detailed description, along with instructions for running the sample
+code on your system.
 
 ::::{grid} 2
 
@@ -13,7 +14,8 @@ These pipelines are designed to showcase core Humanoid Toolkit features, includi
 :link-type: doc
 :link-alt: clickable cards
 
-Train and evaluate an Action Chunking Transformer policy in simulation or on a robot.
+Train and evaluate an Action Chunking with Transformers (ACT) policy in simulation or on a
+robot.
 :::
 
 :::{grid-item-card} **Model Predictive Control Demo**
@@ -101,7 +103,15 @@ Build and run high-performance lidar-inertial odometry and mapping.
 :link-type: doc
 :link-alt: clickable cards
 
-Explore whole-body control for GROOT-based humanoid robotics.
+Explore whole-body control for GR00T-based humanoid robotics.
+:::
+
+:::{grid-item-card} **GDRNPP 6D Pose Estimation**
+:link: sample_pipelines/gdrnpp
+:link-type: doc
+:link-alt: clickable cards
+
+Combine YOLOX object detection and GDRN pose estimation optimized with OpenVINO™. 
 :::
 ::::
 
@@ -122,7 +132,6 @@ sample_pipelines/openclaw_agenticros_demo
 sample_pipelines/fast_livo2_demo
 sample_pipelines/fast_lio2_demo
 sample_pipelines/gr00t_wbc
+sample_pipelines/gdrnpp
 
 :::
-
-
