@@ -74,7 +74,11 @@ scripts/ros1-bridge-check.sh [device] [width] [height] [hz] [seconds] [rmw]
 | `seconds` | `30` | Measured time, after an 8-second warm-up |
 | `rmw` | `rmw_cyclonedds_cpp` | ROS 2 middleware on both sides. `rmw_fastrtps_cpp` also works |
 
-## Expected results
+## Example results
+
+:::{note}
+Individual results may vary.
+:::
 
 On an Intel® Core™ Ultra X7 358H processor with Cyclone DDS, every run answered 100% of the frames, with the same labels (bicycle, car):
 

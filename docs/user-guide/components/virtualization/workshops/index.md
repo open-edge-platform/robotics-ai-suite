@@ -35,7 +35,11 @@ Every ROS 2 workshop has a Jazzy definition, `<name>`, and a Humble definition, 
 | [Robotics System Profiler](benchmark-framework.md) | ROS 2 KPIs in Grafana, monitoring another workshop | - | Yes | Yes |
 | [ROS 1 Bridge](ros1-bridge.md) | A ROS 1 Noetic camera, `ros1_bridge`, and detection on Jazzy | - | Yes | - |
 
-All workshops were tested on an Intel® Core™ Ultra X7 358H processor with Intel® Arc™ B390 graphics and robotics-installer v2026.3.12.
+All workshops were tested on an Intel® Core™ Ultra X7 358H processor with Intel® Arc™ B390 graphics and robotics-installer v2026.3.12. The results in these tutorials are examples from that system.
+
+:::{note}
+Individual results may vary.
+:::
 
 ## Where to start
 
