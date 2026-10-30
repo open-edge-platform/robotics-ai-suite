@@ -11,7 +11,7 @@ Robotics AI Suite applications.
 :link-type: doc
 :link-alt: clickable cards
 
-Connect and stream uncompresed video and volumetric depth for computer vision and manipulation.
+Connect and stream uncompressed video and volumetric depth for computer vision and manipulation.
 :::
 
 :::{grid-item-card} **USB Cameras**
