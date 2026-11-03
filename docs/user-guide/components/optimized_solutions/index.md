@@ -58,6 +58,14 @@ Restore the robot pose after localization loss in a navigation workflow.
 Extract visual-SLAM keypoints and descriptors with GPU acceleration.
 :::
 
+:::{grid-item-card} **GPU SIFT Extractor**
+:link: sift-extractor
+:link-type: doc
+:link-alt: clickable cards
+
+Extract float L2 SIFT keypoints and descriptors with GPU acceleration.
+:::
+
 :::{grid-item-card} **FLANN oneAPI Component**
 :link: libflann-oneapi
 :link-type: doc
@@ -95,6 +103,7 @@ entry to help you find relevant material for your application.
 | [ITS Path Planner ROS 2 Navigation Plugin](../navigation/its-path-planner-plugin.md) | Autonomous Mobile Robot, Navigation | Intel patented global path planner delivering 20-30x speedup over A* for the ROS 2 Navigation2 stack. |
 | [Robot Re-localization Package for ROS 2 Navigation](../navigation/navigation-relocalization.md) | Autonomous Mobile Robot, Navigation | Re-localization algorithm that rapidly recovers robot pose in Nav2 after sensor glitches or environment disturbances. |
 | [GPU ORB Extractor](orb-extractor.md) | Autonomous Mobile Robot, SLAM | GPU-accelerated keypoint and descriptor extraction for Visual SLAM front-ends, with OpenCV and OpenCV-free APIs. |
+| [GPU SIFT Extractor](sift-extractor.md) | Autonomous Mobile Robot, SLAM | GPU-accelerated float L2 SIFT keypoint and descriptor extraction for SIFT-capable SLAM front-ends, with OpenCV and OpenCV-free APIs. |
 | [FLANN oneAPI Component](libflann-oneapi.md) | Autonomous Mobile Robot, Sensors, Spatial Indexing | Native Intel oneAPI and SYCL 2020 accelerated 3D KD-Tree search and zero-copy USM resident radius queries. |
 | [PCL oneAPI Component](libpcl-oneapi.md) | Autonomous Mobile Robot, Sensors, Point Cloud | Hardware-accelerated point cloud processing for filters, features, segmentation, and SAC model fitting. |
 | [Deploy Robot Teleop Using a Keyboard](../../software_references/amr/deployment/teleop_deploy.md) | Autonomous Mobile Robot | Validates motor control on a deployed robot using keyboard teleoperation before running autonomous workloads. |
@@ -133,6 +142,7 @@ collaborative-slam
 run-fastmapping-algorithm
 adbscan-follow-me
 orb-extractor
+sift-extractor
 libflann-oneapi
 libpcl-oneapi
 
