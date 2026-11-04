@@ -21,7 +21,7 @@ scrape_configs:
       - source_labels: [__name__]
         regex: 'ros2_.*'
         action: keep
-  
+
   # Self-monitoring
   - job_name: 'prometheus'
     static_configs:

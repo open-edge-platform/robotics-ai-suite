@@ -182,8 +182,8 @@ make help           # Show infrastructure targets (install, grafana, clean, lint
 ### ROS2 Not Found
 
 ```bash
-# Source ROS2 (Humble or Jazzy)
-source /opt/ros/humble/setup.bash   # or /opt/ros/jazzy/setup.bash
+# Source ROS2 (Humble, Jazzy or Lyrical)
+source /opt/ros/humble/setup.bash   # or /opt/ros/jazzy/setup.bash, /opt/ros/lyrical/setup.bash
 export ROS_DOMAIN_ID=0
 ```
 

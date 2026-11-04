@@ -1,3 +1,16 @@
+ros-jazzy-benchmark-framework (0.2.6-12) UNRELEASED; urgency=low
+
+  * Add ROS 2 Lyrical Luth (Ubuntu 26.04 LTS, Resolute) support.
+    - Makefile, src/benchmark-framework/Makefile: map ROS_DISTRO=lyrical
+      to the resolute Ubuntu codename.
+    - auto-setup.sh, setup_ros2_env.sh: source /opt/ros/lyrical when it is
+      the installed ROS 2 distribution.
+    - CI: build, publish and promote ros-lyrical-benchmark-framework for
+      resolute, and include it in SDLe evidence.
+  * prometheus/prometheus.yml: remove trailing whitespace (yamllint).
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Wed, 04 Nov 2026 00:00:00 +0000
+
 ros-jazzy-benchmark-framework (0.2.6-11) UNRELEASED; urgency=low
 
   * launch_quoting_and_cleanup: quote CONF_LAUNCH_CMD in benchmark_runner.sh

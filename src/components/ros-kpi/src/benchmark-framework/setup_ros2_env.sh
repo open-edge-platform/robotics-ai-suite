@@ -16,6 +16,10 @@ elif [ -f "/opt/ros/jazzy/setup.bash" ]; then
     # shellcheck source=/dev/null
     source /opt/ros/jazzy/setup.bash
     echo "✅ ROS2 Jazzy sourced"
+elif [ -f "/opt/ros/lyrical/setup.bash" ]; then
+    # shellcheck source=/dev/null
+    source /opt/ros/lyrical/setup.bash
+    echo "✅ ROS2 Lyrical sourced"
 else
     echo "⚠️  ROS2 not found in /opt/ros/"
     echo "Please follow the Intel Robotics AI Suite getting started guide:"

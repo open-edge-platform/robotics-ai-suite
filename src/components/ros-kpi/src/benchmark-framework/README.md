@@ -60,7 +60,7 @@ uv run python src/monitor_stack.py --duration 30    # Quick 30-second health che
 
 | Requirement | Install |
 |-------------|---------|
-| ROS2 Humble / Jazzy | [Intel Robotics AI Suite Getting Started](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/) |
+| ROS2 Humble / Jazzy / Lyrical | [Intel Robotics AI Suite Getting Started](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/) |
 | Python 3.8+ | included with Ubuntu 22.04 |
 | `uv`, `psutil`, `matplotlib`, `numpy` | installed automatically by `make install` |
 
@@ -71,6 +71,9 @@ uv run python src/monitor_stack.py --duration 30    # Quick 30-second health che
 Install the Debian package for your ROS 2 distro:
 
 ```bash
+# ROS 2 Lyrical (Ubuntu 26.04)
+sudo apt-get install ros-lyrical-benchmark-framework
+
 # ROS 2 Jazzy (Ubuntu 24.04)
 sudo apt-get install ros-jazzy-benchmark-framework
 
@@ -719,7 +722,7 @@ One entry per cross-referenced latency outlier, sorted by `latency_ms` descendin
 | `os` | string | OS name and kernel release |
 | `data_path` | string | Absolute path to the session directory |
 | `framework_version` | string | Benchmark framework version (e.g. `0.2.3`) |
-| `ros_distro` | string | ROS 2 distribution (e.g. `jazzy`, `humble`) |
+| `ros_distro` | string | ROS 2 distribution (e.g. `jazzy`, `humble`, `lyrical`) |
 | `hardware` | object | Hardware provenance: CPU model, core count, RAM |
 
 ---

@@ -29,6 +29,8 @@ if(BUILD_TESTING)
   # a copyright and license is added to all source files
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(test_headless test/test_headless.py)
 endif()
 
 ament_package()
@@ -43,6 +45,11 @@ configure_ros_debian_package_with_metadata(
     "ros-${ROS_DISTRO}-ament-cmake"
     "ros-${ROS_DISTRO}-ament-lint-auto"
     "ros-${ROS_DISTRO}-ament-lint-common"
+    "ros-${ROS_DISTRO}-ament-cmake-pytest"
+    "ros-${ROS_DISTRO}-ament-index-python"
+    "ros-${ROS_DISTRO}-launch-ros"
+    "python3-pytest"
+    "python3-yaml"
   DEPENDS
     "ros-${ROS_DISTRO}-realsense2-camera"
     "ros-${ROS_DISTRO}-openvino-node"

@@ -12,6 +12,8 @@ PYTHON := $(if $(shell command -v uv 2>/dev/null),uv run python,python3)
 
 ifeq ($(ROS_DISTRO),humble)
 	UBUNTU_CODENAME := jammy
+else ifeq ($(ROS_DISTRO),lyrical)
+	UBUNTU_CODENAME := resolute
 else
 	UBUNTU_CODENAME := noble
 endif

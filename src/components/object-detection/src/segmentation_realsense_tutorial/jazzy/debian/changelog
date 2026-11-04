@@ -1,3 +1,16 @@
+ros-jazzy-segmentation-realsense-tutorial (2.3-5) noble; urgency=low
+
+  * Add a headless launch argument (default auto: when no display is
+    available). Headless runs skip RViz and drop the RViz pipeline output
+    that aborted openvino_node without a display.
+  * Default to device:=AUTO: the GPU when available, otherwise the CPU.
+    The device argument is now registered by name (launching without
+    device:= failed before).
+  * If the selected device is not available, stop and list the devices
+    OpenVINO can use. End the launch when openvino_node exits.
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Wed, 04 Nov 2026 00:00:00 +0000
+
 ros-jazzy-segmentation-realsense-tutorial (2.3-4) jammy; urgency=low
 
   * Minor fixes in the variable names

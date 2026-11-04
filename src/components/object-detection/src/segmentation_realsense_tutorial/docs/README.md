@@ -31,8 +31,14 @@ For ROS 2 Jazzy, replace `humble` in the package name with `jazzy`.
 
 ## Run the Demo with Intel® RealSense™ Image Topics
 
-Run one of the following commands to launch the segmentation tutorial
-with a specific inference engine:
+Run the following command to launch the segmentation tutorial. By
+default it runs on the GPU, and on the CPU when no GPU is available:
+
+```bash
+ros2 launch segmentation_realsense_tutorial openvino_segmentation.launch.py
+```
+
+To select the inference engine, add the `device` argument:
 
 - GPU inference engine
 
@@ -47,11 +53,31 @@ with a specific inference engine:
   ```
 
 > [!NOTE]
-> If you do not specify a device, the node uses the GPU by default.
+> The default, `device:=AUTO`, uses OpenVINO's automatic device
+> selection (`AUTO:GPU,CPU`). If the selected device is not available,
+> the tutorial stops and lists the devices OpenVINO can use.
 
 When launched, the node downloads the `deeplabv3` model, converts it to
 OpenVINO IR format, and begins inference on images from the Intel®
 RealSense™ camera.
+
+## Run without a display
+
+On a system without a display, for example over SSH, the launch file
+runs in headless mode and does not start RViz. The `headless` launch
+argument controls this:
+
+- `headless:=auto` (default): headless when neither `DISPLAY` nor
+  `WAYLAND_DISPLAY` is set, or the X display cannot be opened
+- `headless:=true`: always headless, even with a display
+- `headless:=false`: always start RViz; stops with an error when no
+  display is available
+
+To see the segmentation results in headless mode, run:
+
+```bash
+ros2 topic echo /ros2_openvino_toolkit/segmented_obejcts | grep -E "object_name|probability"
+```
 
 To stop the application, press `Ctrl+C` in the terminal running the
 launch command.
