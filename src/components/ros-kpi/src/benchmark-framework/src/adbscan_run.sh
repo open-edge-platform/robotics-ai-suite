@@ -10,10 +10,8 @@
 # To customise the launch command, bag topics, stop condition, or any other
 # scenario behaviour, edit config/adbscan_run.yaml instead of this file.
 #
-# The scenario is launched via:
-#   ros2 launch adbscan_ros2 play_demo_lidar_launch.py
-# which starts adbscan_sub_node, and ros2 bag play of the bundled
-# pointcloud bag (/opt/ros/jazzy/share/bagfiles/laser-pointcloud/) together.
+# The scenario starts adbscan_sub_node and ros2 bag play of the bundled
+# pointcloud bag (/opt/ros/<distro>/share/bagfiles/laser-pointcloud/) together.
 #
 # Usage:
 #   bash src/adbscan_run.sh [--timeout SECS] [--plot] [--output-parent DIR]

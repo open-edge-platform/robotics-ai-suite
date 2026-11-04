@@ -1,3 +1,9 @@
+ros-jazzy-rvc-simulation (1.0-2) noble; urgency=medium
+
+  * Set CMAKE_INSTALL_PREFIX to /opt/ros/<distro> during Debian packaging.
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Tue, 03 Nov 2026 00:00:00 +0000
+
 ros-jazzy-rvc-simulation (1.0-1) noble; urgency=medium
 
   * Migrate Debian packaging metadata to CMake/CPACK; remove legacy debian

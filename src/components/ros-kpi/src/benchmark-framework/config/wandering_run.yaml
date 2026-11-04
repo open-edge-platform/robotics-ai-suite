@@ -48,7 +48,7 @@ gazebo:
 
 cleanup:
   # pkill -f pattern used to sweep leftover processes before and after a run.
-  sweep: "ros2 |gz sim|gz_server|gz server|gazebo|rtabmap|nav2|turtlebot|wandering_gazebo|rviz2"
+  sweep: "ros2 |gz sim|gz_server|gz server|/opt/ros/[a-z]*/lib/|gazebo|rtabmap|nav2|turtlebot|wandering_gazebo|wandering_bringup|wandering_mapper|rviz2"
 
 session:
   # Subdirectory under monitoring_sessions/ where sessions are stored.

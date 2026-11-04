@@ -1,3 +1,89 @@
+ros-humble-benchmark-framework (0.2.6-11) UNRELEASED; urgency=low
+
+  * launch_quoting_and_cleanup: quote CONF_LAUNCH_CMD in benchmark_runner.sh
+    and include /opt/ros/*/lib/ in scenario cleanup sweeps.
+    - src/benchmark_runner.sh: quote `"$CONF_LAUNCH_CMD"` when invoking
+      `bash -c` so multi-token `ros2 launch` commands are not word-split.
+    - config/{picknplace,wandering,fastmapping}_run.yaml: include
+      `/opt/ros/[a-z]*/lib/` (and wandering_bringup/wandering_mapper) in
+      `cleanup.sweep` so leftover ROS 2 node binaries are cleaned up between
+      runs.
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Wed, 04 Nov 2026 00:00:00 +0000
+
+ros-humble-benchmark-framework (0.2.6-10) UNRELEASED; urgency=low
+
+  * adbscan_config_update: update ADBScan benchmark profile to launch
+    adbscan_sub and ros2 bag play directly without removed launch file.
+    - config/adbscan_run.yaml: replace removed `play_demo_lidar_launch.py`
+      with direct `ros2 bag play` + `ros2 run adbscan_ros2 adbscan_sub`.
+    - src/benchmark_runner.sh: execute `CONF_LAUNCH_CMD` via `bash -c` to
+      support compound launch commands and use `grep -cE` for `task_pattern`.
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Tue, 03 Nov 2026 00:00:00 +0000
+
+ros-humble-benchmark-framework (0.2.6-9) UNRELEASED; urgency=low
+
+  * wandering_jackal_scenario: new benchmark pipeline for `wandering` on
+    physical Clearpath Robotics Jackal (J100) hardware with the AAEON UP
+    Nexus WCL Edge onboard compute board, per the validated Blueprint in
+    edge-ai-suites/robotics-ai-suite/docs/user-guide/hardware_blueprints/amr/clearpath-jackal.md.
+    - config/wandering_jackal_run.yaml: run profile launching
+      `wandering_bringup wandering_jackal.launch.py`; cleanup sweep is
+      scoped to the wandering_bringup process tree only so the persistent
+      Clearpath base services are never killed between runs.
+    - src/wandering_jackal_run.sh: thin benchmark_runner.sh wrapper for the
+      new scenario.
+    - Makefile: wandering-jackal, wandering-jackal-record,
+      wandering-jackal-plot, wandering-jackal-record-plot, and
+      wandering-jackal-benchmark targets.
+    - quickstart, docs/COMMANDS.md, CHEATSHEET.txt, README.md: documented
+      the new hardware scenario.
+    - docs/JACKAL_POWER_MONITORING.md: reference notes on reading WCL board
+      and per-side motor power from the J100 MCU's
+      /platform/mcu/status/power and /platform/motors/feedback topics,
+      without needing to splice in external power-monitor ICs. Both topics
+      added to config/wandering_jackal_run.yaml's bag.topics.
+    - benchmark_runner.sh/benchmark_profiler.py: new remote-launch mode
+      (--remote-ip/--remote-user, or yaml remote.host/remote.user/
+      ros_domain_id) so the benchmark tool can run from a separate
+      workstation and connect to the Jackal's WCL Edge board over SSH:
+      launch.cmd runs there via SSH (pty-allocated so killing the local
+      ssh client tears down the remote process tree, backstopped by an
+      SSH-based pkill sweep), while DDS peer discovery (ROS_DOMAIN_ID,
+      CYCLONEDDS_URI, ROS_STATIC_PEERS) is configured locally so bag
+      recording and graph/resource monitoring (monitor_stack.py
+      --remote-ip) reach the robot over the network. Opt-in and backward
+      compatible — all other scenarios are unaffected when remote.host is
+      unset.
+    - config/wandering_jackal_run.yaml: new `remote:` section (host/user/
+      ros_domain_id), defaulting `user: administrator` per the Jackal
+      Blueprint's recommended account.
+    - Makefile: wandering-jackal* targets accept REMOTE_IP/REMOTE_USER.
+    - quickstart: Jackal hardware menu now prompts for an optional remote IP.
+    - remote_mode_fixes (validated against a Jackal J100 from a
+      workstation container behind NAT):
+      - yaml remote.setup (wandering_jackal: /etc/clearpath/setup.bash) is
+        sourced on the robot before the ROS_DOMAIN_ID lookup and the launch;
+        Clearpath's ~/.bashrc returns early for non-interactive shells, so
+        `bash -lc` over SSH had no ROS environment.
+      - ROS_DOMAIN_ID auto-detection: the remote's outer shell expanded the
+        variable before `bash -lc` ran, so detection always fell back to the
+        local domain (benchmark_runner.sh and monitor_stack.py).
+      - src/fastdds_peers.py: Fast DDS profile listing every participant's
+        unicast discovery port on the remote; ROS_STATIC_PEERS alone only
+        reaches the first four, so most of a robot's nodes were invisible
+        when multicast does not reach the workstation. Used by
+        benchmark_runner.sh and monitor_stack.py unless
+        FASTRTPS_DEFAULT_PROFILES_FILE is already set.
+      - benchmark_runner.sh copies _psutil_probe.py to ~/ros-kpi/src/ on the
+        remote, so remote CPU/memory sampling works without manual setup.
+      - monitor_resources.py: sysfs GPU sampling finds the Intel DRM card and
+        supports the xe layout (tile*/gt*/gtidle, freq0) instead of a fixed
+        card1 i915 path, which logged 100% busy at 0 MHz on xe robots.
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Tue, 13 Oct 2026 00:00:00 +0000
+
 ros-humble-benchmark-framework (0.2.6-8) UNRELEASED; urgency=low
 
   * doc_url_update: point README documentation links to the new

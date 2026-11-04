@@ -41,6 +41,19 @@ Wandering:
   bash src/wandering_run.sh --run-config config/wandering_run.yaml  # custom profile
   (use ./quickstart for multi-run benchmark mode)
 
+Wandering on Clearpath Jackal hardware (AAEON UP Nexus WCL Edge):
+  bash src/wandering_jackal_run.sh --timeout 300
+  bash src/wandering_jackal_run.sh --timeout 300 --record --plot
+  bash src/wandering_jackal_run.sh --show                       # record + plot + auto-open report
+  make wandering-jackal                                         # single run (record + plot)
+  make wandering-jackal-benchmark RUNS=10                       # 10-run benchmark -> aggregate KPI
+  (edit config/wandering_jackal_run.yaml to set ROBOT_NAMESPACE)
+
+  # From a separate workstation, connecting to the WCL Edge board over SSH/DDS:
+  bash src/wandering_jackal_run.sh --remote-ip 192.168.1.50 --remote-user administrator --record --plot
+  make wandering-jackal REMOTE_IP=192.168.1.50 REMOTE_USER=administrator
+  (or set remote.host/remote.user in config/wandering_jackal_run.yaml)
+
 Pick-n-Place:
   bash src/picknplace_run.sh --timeout 300
   bash src/picknplace_run.sh --timeout 300 --record

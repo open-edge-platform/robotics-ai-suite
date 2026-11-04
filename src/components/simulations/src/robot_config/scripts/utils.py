@@ -29,7 +29,10 @@ import rclpy
 from rclpy.node import Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rcl_interfaces.srv import SetParameters, GetParameters
-from gazebo_msgs.srv import GetEntityState
+try:
+    from gazebo_msgs.srv import GetEntityState
+except ImportError:
+    GetEntityState = None
 
 _ROS2_BIN = shutil.which('ros2')
 if _ROS2_BIN is None:

@@ -383,6 +383,77 @@ Results: `monitoring_sessions/fastmapping/<timestamp>/kpi.json`,
 
 ---
 
+### wandering_jackal_run.sh — Clearpath Jackal Hardware Benchmark Runner
+
+Thin wrapper around `benchmark_runner.sh` for the `wandering` scenario running
+on a physical **Clearpath Robotics Jackal (J100)** with the stock onboard
+computer replaced by an **AAEON UP Nexus WCL Edge** (Wildcat Lake) board, per
+the validated Blueprint in
+[`edge-ai-suites/robotics-ai-suite/docs/user-guide/hardware_blueprints/amr/clearpath-jackal.md`](../edge-ai-suites/robotics-ai-suite/docs/user-guide/hardware_blueprints/amr/clearpath-jackal.md).
+Launches `ros2 launch wandering_bringup wandering_jackal.launch.py`, which
+starts depth-to-laserscan conversion, RTAB-Map SLAM, the Jackal Nav2 stack with
+`ADBScanLayer`, ADBSCAN sensor fusion/clustering, and `wandering_app`.
+All scenario behavior is defined in
+[`config/wandering_jackal_run.yaml`](config/wandering_jackal_run.yaml).
+
+This is a **live-robot** scenario, not a simulation — the Clearpath base
+services (`clearpath-platform.service`, `clearpath-sensors.service`,
+`clearpath-robot.service`) must already be running on the robot before
+starting a benchmark run. Set `ROBOT_NAMESPACE` in the config's `launch.env`
+to match the `namespace` configured in `/etc/clearpath/robot.yaml` (default
+`/j100_0812`).
+
+**Runs from a separate workstation by connecting to the WCL Edge over SSH/DDS.**
+Set `remote.host` in [`config/wandering_jackal_run.yaml`](config/wandering_jackal_run.yaml)
+(or pass `--remote-ip`) to the board's IP/hostname: `benchmark_runner.sh` then
+launches `wandering_bringup wandering_jackal.launch.py` there over SSH, while
+this script, bag recording, and resource/graph monitoring all run locally on
+your workstation. Requirements are the same as the general
+[Remote Monitoring](#remote-monitoring) section below: SSH key-based auth to
+the robot and a matching RMW implementation installed locally. Leave
+`remote.host` empty to instead run this whole script directly on the WCL Edge
+board (no SSH hop).
+
+In remote mode the runner sources `remote.setup` (`/etc/clearpath/setup.bash`
+in this profile) on the robot before each SSH command, copies
+`src/_psutil_probe.py` to `~/ros-kpi/src/` there, and, with Fast DDS, writes
+`<session>/fastdds_remote_peers.xml` listing every participant port on the
+robot (`ROS_STATIC_PEERS` alone only reaches the first few of its ~30 nodes).
+Install `ros-<distro>-clearpath-platform-msgs` and
+`ros-<distro>-clearpath-motor-msgs` locally to record the MCU topics. If the
+workstation is behind NAT (for example a container), the robot also needs a
+route back to it.
+
+```bash
+bash src/wandering_jackal_run.sh [--timeout SECS] [--record] [--plot]
+
+# Run from a separate workstation, connecting to the WCL Edge board over SSH
+bash src/wandering_jackal_run.sh --remote-ip 192.168.1.50 --remote-user administrator --record --plot
+make wandering-jackal REMOTE_IP=192.168.1.50 REMOTE_USER=administrator
+
+# Override the run profile (e.g. custom ROBOT_NAMESPACE or LiDAR preset args)
+bash src/wandering_jackal_run.sh --run-config config/wandering_jackal_run.yaml
+make wandering-jackal RUN_CONFIG=config/my_jackal_profile.yaml
+make wandering-jackal-benchmark RUNS=10 TIMEOUT=300
+```
+
+Results land in `monitoring_sessions/wandering_jackal/<timestamp>/` and can be
+visualized the same way as other scenarios:
+
+```bash
+uv run python src/visualize_timing.py <session>/graph_timing.csv --delays --frequencies --show
+uv run python src/visualize_resources.py <session>/resource_usage.json --cores --heatmap --show
+uv run python src/visualize_graph.py <session>/graph_timing.csv --show
+```
+
+The recorded bag also includes `/platform/mcu/status/power` and
+`/platform/motors/feedback`, the Jackal MCU's onboard power/current telemetry
+for the WCL board's 12V user-power rail and per-side motor current — see
+[`docs/JACKAL_POWER_MONITORING.md`](docs/JACKAL_POWER_MONITORING.md) for the
+field reference and power-estimate formulas.
+
+---
+
 ## Monitoring Modes
 
 | Mode | Tracks | Overhead | Use when |
@@ -404,8 +475,8 @@ Monitor a ROS2 pipeline running on a **separate machine**.
 
 | Component | Mechanism |
 |-----------|-----------|
-| Graph monitor | DDS peer discovery via `CYCLONEDDS_URI` / `ROS_STATIC_PEERS` |
-| Resource monitor | Runs `_psutil_probe.py` over SSH (must be pre-deployed on the remote host, e.g. via `scp`, with `psutil` installed there) |
+| Graph monitor | DDS peer discovery via `CYCLONEDDS_URI` / `ROS_STATIC_PEERS`, plus a Fast DDS profile listing every participant port on the remote (`src/fastdds_peers.py`) |
+| Resource monitor | Runs `_psutil_probe.py` over SSH (`psutil` installed on the remote; `benchmark_runner.sh` deploys the probe, otherwise copy it with `scp`) |
 
 ```bash
 uv run python src/monitor_stack.py --remote-ip 192.168.1.100

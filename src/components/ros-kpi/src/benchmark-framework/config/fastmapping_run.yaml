@@ -66,7 +66,7 @@ gazebo:
 cleanup:
   # Sweep pattern for pkill -f used before and after each run.
   # Includes rviz2 because fast_mapping.launch.py starts it alongside the node.
-  sweep: "ros2 |fast_mapping_node|fast_mapping.launch|ros2 bag play|rviz2"
+  sweep: "ros2 |fast_mapping_node|fast_mapping.launch|/opt/ros/[a-z]*/lib/|ros2 bag play|rviz2"
 
 session:
   # Subdirectory under monitoring_sessions/ where sessions are stored.

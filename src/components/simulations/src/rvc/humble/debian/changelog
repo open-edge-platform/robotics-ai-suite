@@ -1,3 +1,10 @@
+ros-humble-rvc (1.0.0-2) jammy; urgency=medium
+
+  * Set CMAKE_INSTALL_PREFIX to /opt/ros/<distro> during Debian packaging so
+    rvc.dsv resolves CYCLONEDDS_URI to the installed ROS prefix.
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Tue, 03 Nov 2026 00:00:00 +0000
+
 ros-humble-rvc (1.0.0-1) jammy; urgency=medium
 
   * Migrate Debian packaging metadata to CMake/CPACK; remove legacy debian control/rules flow.

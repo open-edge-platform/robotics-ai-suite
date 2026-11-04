@@ -153,6 +153,13 @@ bash src/wandering_run.sh --record --plot      # record KPI bag + generate plots
 bash src/wandering_run.sh --show               # record + plot + auto-open HTML report
 bash src/wandering_run.sh --timeout 120        # hard stop after 2 min
 bash src/wandering_run.sh --run-config config/wandering_run.yaml --show
+
+# Clearpath Jackal hardware (AAEON UP Nexus WCL Edge onboard compute)
+bash src/wandering_jackal_run.sh --record --plot
+bash src/wandering_jackal_run.sh --run-config config/wandering_jackal_run.yaml --show
+
+# ...or from a separate workstation, connecting to the WCL Edge board over SSH/DDS
+bash src/wandering_jackal_run.sh --remote-ip 192.168.1.50 --remote-user administrator --record --plot
 ```
 
 | Flag | Description |
@@ -164,6 +171,8 @@ bash src/wandering_run.sh --run-config config/wandering_run.yaml --show
 | `--goals N` | Stop after N goal events |
 | `--output-parent DIR` | Session parent directory |
 | `--side-terminals` | Open htop + qmassa in Terminator windows |
+| `--remote-ip HOST` | Launch `launch.cmd` on this host over SSH instead of locally; configures DDS peer discovery for bag recording/graph monitoring (overrides yaml `remote.host`) |
+| `--remote-user USER` | SSH username for `--remote-ip` (overrides yaml `remote.user`) |
 
 **Progress stages printed during each run:**
 
@@ -182,6 +191,8 @@ bash src/wandering_run.sh --run-config config/wandering_run.yaml --show
 make wandering                              # single run with record + plot
 make wandering SHOW=1                       # single run + auto-open report
 make wandering-benchmark RUNS=5 TIMEOUT=120 # 5-run benchmark + aggregate
+make wandering-jackal                       # Jackal hardware: single run with record + plot
+make wandering-jackal-benchmark RUNS=10     # Jackal hardware: 10-run benchmark + aggregate
 make picknplace-run                         # single run with record + plot
 make fastmapping                            # single run with record + plot
 ```
@@ -277,8 +288,8 @@ uv run python src/monitor_stack.py --remote-ip 192.168.1.100 --pid-only --durati
 
 | Component | How it works |
 |-----------|-------------|
-| Graph monitor | DDS peer discovery via `CYCLONEDDS_URI` / `ROS_STATIC_PEERS` |
-| Resource monitor | Runs `_psutil_probe.py` over SSH (must be pre-deployed on the remote host, e.g. via `scp`) |
+| Graph monitor | DDS peer discovery via `CYCLONEDDS_URI` / `ROS_STATIC_PEERS`, plus a Fast DDS profile listing every participant port on the remote (`src/fastdds_peers.py`) |
+| Resource monitor | Runs `_psutil_probe.py` over SSH (`benchmark_runner.sh` deploys it; otherwise copy it with `scp`) |
 
 Results are stored and visualized **locally** on the monitoring machine.
 

@@ -23,6 +23,7 @@ BENCH_INSTALL_DIR ?= /opt/ros/$(ROS_DISTRO)/benchmarking
         clean clean-last clean-session \
         grafana-start grafana-stop grafana-pull grafana-status grafana-logs grafana-open \
         wandering wandering-record wandering-plot wandering-record-plot wandering-benchmark \
+        wandering-jackal wandering-jackal-record wandering-jackal-plot wandering-jackal-record-plot wandering-jackal-benchmark \
         picknplace-run picknplace-record picknplace-plot picknplace-record-plot picknplace-benchmark \
         bag-replay bag-replay-plot bag-replay-benchmark \
         fastmapping fastmapping-plot fastmapping-benchmark \
@@ -78,6 +79,12 @@ help:
 	@echo "  bash src/wandering_run.sh --help"
 	@echo "  bash src/picknplace_run.sh --help"
 	@echo "  make wandering [RUN_CONFIG=config/wandering_run.yaml] - Override run profile YAML"
+	@echo ""
+	@echo "HARDWARE (Clearpath Jackal + AAEON UP Nexus WCL Edge, live robot):"
+	@echo "  bash src/wandering_jackal_run.sh --help"
+	@echo "  make wandering-jackal [RUN_CONFIG=config/wandering_jackal_run.yaml] - Single run (record + plot)"
+	@echo "  make wandering-jackal-benchmark [RUNS=10] [TIMEOUT=300]             - N-run benchmark, aggregate KPI"
+	@echo "  make wandering-jackal REMOTE_IP=<ip> [REMOTE_USER=administrator]    - Run from a separate workstation over SSH"
 	@echo ""
 	@echo "BAG REPLAY (offline / CI benchmarking):"
 	@echo "  make bag-replay BAG=<bag_dir> [RATE=1.0]  - Single replay + KPI collection"
@@ -716,6 +723,60 @@ wandering-benchmark:
 	[ "$(NO_PROMPT)" = "1" ] && echo "KPI aggregation complete -> $$BENCH_DIR"; \
 	[ "$(NO_PROMPT)" = "1" ] || bash src/bench_menu.sh "$$BENCH_DIR" "$(CURDIR)"
 
+# ── Clearpath Jackal hardware (AAEON UP Nexus WCL Edge) ───────────────────────
+# Live-robot pipeline — requires the Clearpath base services already running
+# on the robot. See config/wandering_jackal_run.yaml for ROBOT_NAMESPACE and
+# other overrides.
+#
+# REMOTE_IP / REMOTE_USER run launch.cmd on the Jackal's WCL Edge board over
+# SSH while this Makefile, bag recording, and monitoring run locally on a
+# separate workstation (overrides config/wandering_jackal_run.yaml's remote:
+# section). Omit both to run directly on the WCL Edge board instead.
+#   make wandering-jackal REMOTE_IP=192.168.1.50 REMOTE_USER=administrator
+
+wandering-jackal:
+	bash src/wandering_jackal_run.sh $(if $(RUN_CONFIG),--run-config $(RUN_CONFIG)) --record --plot $(if $(TIMEOUT),--timeout $(TIMEOUT)) $(if $(SHOW),--show) $(if $(SIDE_TERMINALS),--side-terminals) $(if $(REMOTE_IP),--remote-ip $(REMOTE_IP)) $(if $(REMOTE_USER),--remote-user $(REMOTE_USER))
+
+wandering-jackal-record:
+	bash src/wandering_jackal_run.sh $(if $(RUN_CONFIG),--run-config $(RUN_CONFIG)) --record $(if $(TIMEOUT),--timeout $(TIMEOUT)) $(if $(SHOW),--show) $(if $(SIDE_TERMINALS),--side-terminals) $(if $(REMOTE_IP),--remote-ip $(REMOTE_IP)) $(if $(REMOTE_USER),--remote-user $(REMOTE_USER))
+
+wandering-jackal-plot:
+	bash src/wandering_jackal_run.sh $(if $(RUN_CONFIG),--run-config $(RUN_CONFIG)) --plot $(if $(TIMEOUT),--timeout $(TIMEOUT)) $(if $(SHOW),--show) $(if $(SIDE_TERMINALS),--side-terminals) $(if $(REMOTE_IP),--remote-ip $(REMOTE_IP)) $(if $(REMOTE_USER),--remote-user $(REMOTE_USER))
+
+wandering-jackal-record-plot:
+	bash src/wandering_jackal_run.sh $(if $(RUN_CONFIG),--run-config $(RUN_CONFIG)) --record --plot $(if $(TIMEOUT),--timeout $(TIMEOUT)) $(if $(SHOW),--show) $(if $(SIDE_TERMINALS),--side-terminals) $(if $(REMOTE_IP),--remote-ip $(REMOTE_IP)) $(if $(REMOTE_USER),--remote-user $(REMOTE_USER))
+
+# wandering-jackal-benchmark: repeats the Jackal hardware run RUNS times and aggregates KPIs.
+#
+# Use cases:
+#   Local/interactive : make wandering-jackal-benchmark RUNS=10 TIMEOUT=300
+#   CI / automated     : make wandering-jackal-benchmark RUNS=3 TIMEOUT=240 NO_PROMPT=1
+#   Remote workstation : make wandering-jackal-benchmark RUNS=10 REMOTE_IP=192.168.1.50
+wandering-jackal-benchmark:
+	@RUNS=$(if $(RUNS),$(RUNS),10); \
+	TIMEOUT=$(if $(TIMEOUT),$(TIMEOUT),300); \
+	PAUSE=$(if $(PAUSE),$(PAUSE),30); \
+	GOALS=$(if $(GOALS),$(GOALS),0); \
+	BENCH_DIR=monitoring_sessions/wandering_jackal/bench_$$(date +%Y%m%d_%H%M%S); \
+	mkdir -p "$$BENCH_DIR"; \
+	echo "▶  Wandering (Jackal hardware) benchmark: $$RUNS runs x $${TIMEOUT}s  →  $$BENCH_DIR"; \
+	[ "$$GOALS" -gt 0 ] && echo "   Stop condition      : $$GOALS goals per run" || echo "   Stop condition      : timeout only"; \
+	[ -n "$(REMOTE_IP)" ] && echo "   Remote target       : $(if $(REMOTE_USER),$(REMOTE_USER),administrator)@$(REMOTE_IP)"; \
+	echo "   Hardware monitoring : GPU/NPU auto-detected per run"; \
+	echo "   Log level           : $$([ "$(NO_PROMPT)" = "1" ] && echo "WARNING (forced by NO_PROMPT=1)" || echo "$${LOG_LEVEL:-INFO (default; see .env)}")"; \
+	for i in $$(seq 1 $$RUNS); do \
+		echo "--- Run $$i / $$RUNS ---"; \
+		if [ "$(NO_PROMPT)" = "1" ] || [ $$i -lt $$RUNS ]; then _PROMPT="--no-prompt"; else _PROMPT=""; fi; \
+		bash src/wandering_jackal_run.sh $(if $(RUN_CONFIG),--run-config $(RUN_CONFIG)) --timeout $$TIMEOUT --record $$_PROMPT --output-parent "$$BENCH_DIR" \
+			$(if $(GOALS), --goals $$GOALS) $(if $(REMOTE_IP),--remote-ip $(REMOTE_IP)) $(if $(REMOTE_USER),--remote-user $(REMOTE_USER)); \
+		[ $$i -lt $$RUNS ] && sleep $$PAUSE; \
+	done; \
+	echo ""; \
+	echo "▶  All $$RUNS runs complete. Aggregating KPI across runs..."; \
+	$(PYTHON) src/aggregate_kpi.py "$$BENCH_DIR" $(if $(NODE),--node $(NODE)) $$([ "$(NO_PROMPT)" = "1" ] && echo --log-level WARNING); \
+	[ "$(NO_PROMPT)" = "1" ] && echo "KPI aggregation complete -> $$BENCH_DIR"; \
+	[ "$(NO_PROMPT)" = "1" ] || bash src/bench_menu.sh "$$BENCH_DIR" "$(CURDIR)"
+
 picknplace-run:
 	bash src/picknplace_run.sh $(if $(RUN_CONFIG),--run-config $(RUN_CONFIG)) --record --plot $(if $(TIMEOUT),--timeout $(TIMEOUT),--timeout 300) $(if $(SHOW),--show) $(if $(SIDE_TERMINALS),--side-terminals)
 
@@ -889,7 +950,7 @@ fastmapping-benchmark:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ADBScan benchmarking
-# Uses: ros2 launch adbscan_ros2 play_demo_lidar_launch.py
+# Uses: ros2 run adbscan_ros2 adbscan_sub + ros2 bag play
 # (starts adbscan_sub_node, and ros2 bag replay)
 #
 # Optional: RUNS=10  — independent benchmark runs (adbscan-benchmark)

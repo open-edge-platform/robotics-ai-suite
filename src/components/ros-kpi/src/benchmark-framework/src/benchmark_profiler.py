@@ -31,8 +31,10 @@ YAML schema (config/<scenario>_run.yaml)
   session:
     output_subdir: ""                         # under monitoring_sessions/ (derived)
     log_prefix: ""                            # log file prefix (derived)
-    record_log: ""                            # /tmp/<prefix>_record.log (derived)
-  bag:
+    record_log: ""                            # /tmp/<prefix>_record.log (derived)  remote:
+    host: ""                                  # SSH host/IP of a remote robot (empty = run locally)
+    user: "ubuntu"                            # SSH username for --remote-ip
+    ros_domain_id: ""                         # explicit override; empty = auto-detect via SSH  bag:
     topics: [...]                             # topics for ros2 bag record
 
 CLI usage (from bash run scripts)
@@ -105,6 +107,15 @@ class RunConfig:
     output_subdir: str = ""
     record_log: str = ""
 
+    # ── remote execution ──────────────────────────────────────────────────────
+    # When remote_host is set, benchmark_runner.sh launches launch_cmd on that
+    # host over SSH instead of locally, and configures DDS peer discovery so
+    # local bag recording / graph monitoring can reach it over the network.
+    remote_host: str = ""       # SSH host/IP (empty = run locally, the default)
+    remote_user: str = "ubuntu"  # SSH username
+    remote_ros_domain_id: str = ""  # explicit override; empty = auto-detect via SSH
+    remote_setup: str = ""      # file sourced on the remote before each SSH command (empty = none)
+
     # ── post-run analysis ─────────────────────────────────────────────────────
     post_run_cmd: str = ""   # command to run after the run; SESSION_DIR is substituted
 
@@ -155,9 +166,9 @@ class RunConfig:
             raise ValueError(f"'launch.init_sleep' must be >= 0, got {init_sleep}: {p}")
 
         # ── scenario — derived from the ROS package name in launch.cmd ────────
-        # Expected format: "ros2 launch <package> <launch_file> [args...]"
+        # Expected format: "ros2 launch|run <package> <target> [args...]"
         tokens = str(launch_cmd).split()
-        if len(tokens) >= 3 and tokens[:2] == ["ros2", "launch"]:
+        if len(tokens) >= 3 and tokens[0] == "ros2" and tokens[1] in ("launch", "run"):
             scenario = tokens[2]
         else:
             # Fallback: use config file stem stripped of "_run" suffix
@@ -190,6 +201,15 @@ class RunConfig:
         log_prefix    = str(session.get("log_prefix")    or _prefix)
         output_subdir = str(session.get("output_subdir") or _prefix)
         record_log    = str(session.get("record_log")    or f"/tmp/{log_prefix}_record.log")
+
+        # ── remote execution ───────────────────────────────────────────────────
+        remote = data.get("remote") or {}
+        remote_host          = str(remote.get("host") or "")
+        remote_user          = str(remote.get("user") or "ubuntu")
+        remote_domain = remote.get("ros_domain_id")
+        remote_ros_domain_id = "" if remote_domain is None else str(remote_domain)
+        remote_setup         = str(remote.get("setup") or "")
+
         # ── post-run analysis ─────────────────────────────────────────────────
         post_run    = data.get("post_run") or {}
         post_run_cmd = str(post_run.get("cmd") or "")
@@ -216,6 +236,10 @@ class RunConfig:
             log_prefix=log_prefix,
             output_subdir=output_subdir,
             record_log=record_log,
+            remote_host=remote_host,
+            remote_user=remote_user,
+            remote_ros_domain_id=remote_ros_domain_id,
+            remote_setup=remote_setup,
             post_run_cmd=post_run_cmd,
             bag_topics=bag_topics,
         )
@@ -257,6 +281,10 @@ class RunConfig:
             f"CONF_SWEEP={shlex.quote(self.sweep)}",
             f"CONF_OUTPUT_SUBDIR={shlex.quote(self.output_subdir)}",
             f"CONF_RECORD_LOG={shlex.quote(self.record_log)}",
+            f"CONF_REMOTE_HOST={shlex.quote(self.remote_host)}",
+            f"CONF_REMOTE_USER={shlex.quote(self.remote_user)}",
+            f"CONF_REMOTE_ROS_DOMAIN_ID={shlex.quote(self.remote_ros_domain_id)}",
+            f"CONF_REMOTE_SETUP={shlex.quote(self.remote_setup)}",
             f"CONF_POST_RUN_CMD={shlex.quote(self.post_run_cmd)}",
         ]
         return "\n".join(lines)
@@ -271,6 +299,14 @@ class RunConfig:
         print(f"Init sleep    : {self.init_sleep}s", file=file)
         print(f"Log prefix    : {self.log_prefix}", file=file)
         print(f"Output subdir : monitoring_sessions/{self.output_subdir}/", file=file)
+        if self.remote_host:
+            print(f"Remote target : {self.remote_user}@{self.remote_host}", file=file)
+            if self.remote_ros_domain_id:
+                print(f"Remote domain : {self.remote_ros_domain_id} (explicit)", file=file)
+            else:
+                print("Remote domain : auto-detect via SSH", file=file)
+            if self.remote_setup:
+                print(f"Remote setup  : {self.remote_setup}", file=file)
         if self.goal_pattern:
             print(f"Goal pattern  : {self.goal_pattern!r}  (stop at {self.goal_count or 'Ctrl-C'})", file=file)
         if self.done_pattern:
