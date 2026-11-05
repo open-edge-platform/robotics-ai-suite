@@ -48,7 +48,7 @@ The package installs to `/opt/ros/<distro>/benchmarking/` which is root-owned.
 Copy it to a user-writable directory before running `make install` and `uv sync`:
 
 ```bash
-# Replace 'jazzy' with 'humble' as appropriate
+# Replace 'jazzy' with 'humble' or 'lyrical' as appropriate
 cp -r /opt/ros/jazzy/benchmarking ~/ros-kpi
 cd ~/ros-kpi
 make install

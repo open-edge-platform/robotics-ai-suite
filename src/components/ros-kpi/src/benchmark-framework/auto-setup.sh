@@ -29,6 +29,9 @@ setup_ros2() {
     elif [ -f "/opt/ros/jazzy/setup.bash" ]; then
         source /opt/ros/jazzy/setup.bash
         echo -e "${GREEN}✅ ROS2 Jazzy sourced${NC}"
+    elif [ -f "/opt/ros/lyrical/setup.bash" ]; then
+        source /opt/ros/lyrical/setup.bash
+        echo -e "${GREEN}✅ ROS2 Lyrical sourced${NC}"
     else
         echo -e "${RED}❌ ROS2 not found. Please install ROS2.${NC}"
         return 1
