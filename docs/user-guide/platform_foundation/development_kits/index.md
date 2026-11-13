@@ -11,8 +11,9 @@ the hardware and start development quickly.
 For production grade systems, explore a [catalog of systems offered by our partners](https://builders.intel.com/ecosystem-engagement/solution-hub/edge-ai-catalog/partner-spotlight?type=system).
 ```
 
-The development kits below have been tested with the Robotics AI Suite. Select a
-picture to open its setup and configuration guide.
+Select a picture to open the kit's setup and configuration guide or its partner
+product page. The kits with local setup guides have been tested with the Robotics
+AI Suite; partner listings do not imply validation.
 
 ::::{grid} 4
 :gutter: 3
@@ -64,6 +65,18 @@ picture to open its setup and configuration guide.
 
 **ASUS NUC 16**
 <br><small>Intel® Core™ Ultra Processors<br>Intel® Core™ Processors</small>
+:::
+
+:::{grid-item-card}
+:img-top: ../images/asrock-rbk-100.jpg
+:img-alt: ASRock Industrial RBK-100 Robotics-in-a-Box Physical AI development kit
+:class-card: development-kit-card
+:link: https://www.asrockind.com/en-gb/RBK-100%20/%20Robotics-in-a-Box
+:link-alt: ASRock Industrial RBK-100 Robotics-in-a-Box product page
+:text-align: center
+
+**ASRock Industrial RBK-100**
+<br><small>Robotics-in-a-Box<br>Intel® Core™ Ultra Series 3 Processors</small>
 :::
 ::::
 
