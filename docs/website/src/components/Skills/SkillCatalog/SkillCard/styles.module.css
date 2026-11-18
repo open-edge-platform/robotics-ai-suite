@@ -5,6 +5,65 @@
   flex-direction: column;
   border-radius: var(--size-7);
   background: #ffffff0d;
+  border: 1px solid transparent;
+  min-width: 0;
+}
+
+.toolkitItem {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 199, 253, 0.11) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border-color: rgba(0, 199, 253, 0.45);
+}
+
+.pinnedItem {
+  box-shadow: 0 0 0 1px rgba(181, 124, 255, 0.28);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--size-8);
+  flex-wrap: wrap;
+}
+
+.metaBadges {
+  display: flex;
+  align-items: center;
+  gap: var(--size-6);
+  flex-wrap: wrap;
+}
+
+.toolkitBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--size-2) var(--size-8);
+  font-size: var(--size-12);
+  font-weight: 600;
+  line-height: var(--size-18);
+  border-radius: 999px;
+  color: #70dbf3;
+  background: rgba(0, 199, 253, 0.16);
+  border: 1px solid rgba(0, 199, 253, 0.45);
+  white-space: nowrap;
+}
+
+.pinnedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--size-4);
+  padding: var(--size-2) var(--size-8);
+  font-size: var(--size-12);
+  font-weight: 600;
+  line-height: var(--size-18);
+  border-radius: 999px;
+  color: #e2cbff;
+  background: rgba(181, 124, 255, 0.18);
+  border: 1px solid rgba(181, 124, 255, 0.45);
+  white-space: nowrap;
 }
 
 .name {
@@ -13,6 +72,8 @@
   font-weight: 500;
   line-height: var(--size-24);
   letter-spacing: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .nameLink {

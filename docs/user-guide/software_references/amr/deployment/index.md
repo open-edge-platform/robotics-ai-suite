@@ -37,7 +37,7 @@ After completing the simulation and deployment software reference series, you ar
 the production-grade ingredients and pipelines included with the Robotics AI Suite in your own
 software.
 
-Check out the [Optimized Solutions](../../../components/optimized_solutions/index.md) to
+Check out [Navigation & SLAM](../../../components/navigation/index.md), [Sensors & Perception](../../../components/sensors/index.md), and the [Software Index](../../../resources/index.md) to
 explore AMR-specific ingredients, including components powered by OpenVINO™ and the
 OpenVINO™ Physical AI framework, to add AI accelerated by Intel to your software stack.
 

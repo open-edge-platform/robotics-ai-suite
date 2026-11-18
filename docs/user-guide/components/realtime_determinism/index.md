@@ -13,6 +13,14 @@ Real-time control documentation covers deterministic compute, motion, industrial
 Install and verify the real-time Linux kernel (PREEMPT_RT) for deterministic control.
 :::
 
+:::{grid-item-card} **Real-time Tuning Guide**
+:link: rt_tuning_guide
+:link-type: doc
+:link-alt: clickable cards
+
+Configure system settings, kernel parameters, and CPU isolation to minimize control-loop jitter.
+:::
+
 :::{grid-item-card} **IgH EtherCAT Master Stack**
 :link: ethercat
 :link-type: doc

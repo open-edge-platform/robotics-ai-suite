@@ -1,3 +1,5 @@
+import clsx from "clsx";
+import { Pin } from "lucide-react";
 import CopyIcon from "../../../../../static/img/icon/copy.svg";
 import type { Skill } from "../../../../data/skills";
 import { useCopyToClipboard } from "../../../../hooks/useCopyToClipboard.hook";
@@ -7,24 +9,48 @@ export const SkillCard = ({ skill }: { skill: Skill }) => {
   const installCommand =
     skill.installCommand || `npx skills add intel/skills --skill ${skill.id}`;
   const { copied, copy } = useCopyToClipboard();
+  const isToolkit = skill.source === "toolkit";
 
   return (
-    <div className={styles.item}>
-      <h3 className={styles.name}>
-        {skill.sourceUrl ? (
-          <a
-            href={skill.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.nameLink}
-            title={`View source for ${skill.name} on GitHub`}
-          >
-            {skill.name}
-          </a>
-        ) : (
-          skill.name
+    <div
+      className={clsx(
+        styles.item,
+        isToolkit && styles.toolkitItem,
+        skill.pinned && styles.pinnedItem,
+      )}
+    >
+      <div className={styles.header}>
+        <h3 className={styles.name}>
+          {skill.sourceUrl ? (
+            <a
+              href={skill.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.nameLink}
+              title={`View source for ${skill.name} on GitHub`}
+            >
+              {skill.name}
+            </a>
+          ) : (
+            skill.name
+          )}
+        </h3>
+
+        {(isToolkit || skill.pinned) && (
+          <div className={styles.metaBadges}>
+            {isToolkit && (
+              <span className={styles.toolkitBadge}>Robotics AI Suite</span>
+            )}
+            {skill.pinned && (
+              <span className={styles.pinnedBadge}>
+                <Pin size={12} aria-hidden="true" />
+                {skill.pinnedBadge || "Pinned"}
+              </span>
+            )}
+          </div>
         )}
-      </h3>
+      </div>
+
       <p className={styles.description}>{skill.summary || skill.description}</p>
 
       <div className={styles.footer}>
@@ -37,6 +63,7 @@ export const SkillCard = ({ skill }: { skill: Skill }) => {
         </div>
 
         <button
+          type="button"
           className={styles.copyButton}
           onClick={() => copy(installCommand)}
           title={`Copy install command: ${installCommand}`}
@@ -53,21 +80,3 @@ export const SkillCard = ({ skill }: { skill: Skill }) => {
     </div>
   );
 };
-
-{
-  /*       <div className={clsx("card__footer", styles.footer)}>
-        <button
-          type="button"
-          className={styles.copyButton}
-          onClick={copyInstallCommand}
-          aria-live="polite"
-          aria-label={
-            copied
-              ? `Install command copied for ${skill.name}`
-              : `Copy install command for ${skill.name}`
-          }
-        >
-          {copied ? "Copied" : "Copy"}
-        </button>
-      </div> */
-}

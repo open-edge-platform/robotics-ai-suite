@@ -2,43 +2,65 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { normalizeUrl } = require("@docusaurus/utils");
 const { stripFrontMatter } = require("../../src/utils/markdown");
+const { cleanSphinxMarkdown } = require("./sphinx-markdown");
 
-function formatItem(item, depth, options, full = false) {
+function formatDocEntry(item, options, full = false) {
   const { siteDir, siteUrl, baseUrl, shouldExportFile } = options;
 
+  if (item.file && item.file.endsWith("redirect.md")) {
+    item.file = undefined;
+    item.webFile = undefined;
+  }
+
+  if (full) {
+    if (!item.file) return [];
+    const absolute = item.absolutePath || path.join(siteDir, item.file);
+    if (!fs.existsSync(absolute)) return [];
+    if (item.userGuideDir) {
+      return [cleanSphinxMarkdown(absolute, item.userGuideDir)];
+    }
+    return [stripFrontMatter(fs.readFileSync(absolute, "utf8"))];
+  }
+
+  if (!item.href) return [];
+  const pageUrl = normalizeUrl([siteUrl, item.href]);
+  const fileUrl = item.webFile
+    ? normalizeUrl([siteUrl, baseUrl, item.webFile])
+    : undefined;
+
+  const title = item.metadata ? item.metadata.title : item.label;
+  const description = item.metadata?.description ?? item.description ?? "";
+  const targetUrl = shouldExportFile(item) && fileUrl ? fileUrl : pageUrl;
+
+  return [
+    description ? `- [${title}](${targetUrl}): ${description}` : `- [${title}](${targetUrl})`,
+  ];
+}
+
+function formatItem(item, depth, options, full = false) {
   if (item.type === "category") {
+    const selfLines = item.href ? formatDocEntry(item, options, full) : [];
+    const childLines = item.items.flatMap((child) =>
+      formatItem(child, depth + 1, options, full),
+    );
+
+    if (full) {
+      return [...selfLines, ...childLines];
+    }
+
+    const headingHashes = "#".repeat(Math.min(depth, 6));
     return [
       ``,
-      `${"#".repeat(depth)} ${item.label}`,
-      ...(item.description ? ["", item.description] : []),
+      `${headingHashes} ${item.label}`,
+      ...(item.description && !item.href ? ["", item.description] : []),
       ``,
-      ...item.items.flatMap((child) => formatItem(child, depth + 1, options, full)),
+      ...selfLines,
+      ...childLines,
     ];
   }
 
   if (item.type === "link") {
-    if (item.file && item.file.endsWith("redirect.md")) {
-      item.file = undefined;
-      item.webFile = undefined;
-    }
-
-    const pageUrl = normalizeUrl([siteUrl, item.href]);
-    const fileUrl = item.webFile ? normalizeUrl([siteUrl, baseUrl, item.webFile]) : undefined;
-
-    const title = item.metadata ? item.metadata.title : item.label;
-    const description = item.metadata?.description ?? item.description ?? "";
-
-    if (full && item.file) {
-      const absolute = path.join(siteDir, item.file);
-      if (fs.existsSync(absolute)) {
-        return [stripFrontMatter(fs.readFileSync(absolute, "utf8"))];
-      }
-    }
-
-    if (shouldExportFile(item) && fileUrl) {
-      return [`- [${title}](${fileUrl}): ${description}`];
-    }
-    return [`- [${title}](${pageUrl}): ${description}`];
+    return formatDocEntry(item, options, full);
   }
 
   return [];
@@ -47,23 +69,26 @@ function formatItem(item, depth, options, full = false) {
 function buildLLMsTxt(sidebars, options, full = false) {
   const docsRecords = sidebars
     .flatMap((sidebar) => {
-      const details = options.sidebarsConfig[sidebar.key];
-      const content = sidebar.items.flatMap((item) => formatItem(item, 3, options, full));
+      const details = options.sidebarsConfig?.[sidebar.key];
+      const startDepth = details === undefined ? 2 : 3;
+      const content = sidebar.items.flatMap((item) =>
+        formatItem(item, startDepth, options, full),
+      );
 
-      if (details === undefined) {
+      if (details === undefined || full) {
         return content;
       }
 
       return [`## ${details.title}`, ``, details.description, ``, ...content, ``];
     })
-    .join("\n");
+    .join(full ? "\n\n---\n\n" : "\n");
 
   return `# ${options.title}
 
 ${options.siteDescription}
 
-
-${docsRecords}`;
+${docsRecords.trim()}
+`;
 }
 
 module.exports = { buildLLMsTxt };

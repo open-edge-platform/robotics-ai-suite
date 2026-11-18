@@ -32,12 +32,36 @@ For performance analysis, see [Benchmarking and Profiling](../components/benchma
 Optimize and deploy deep-learning inference on available Intel compute devices.
 :::
 
-:::{grid-item-card} **Geti**
+:::{grid-item-card} **PyTorch XPU**
+:link: developer_tools/pytorch-xpu
+:link-type: doc
+:link-alt: clickable cards
+
+Accelerate model prototyping, training, and fine-tuning on Intel GPUs.
+:::
+
+:::{grid-item-card} **Physical AI Studio**
+:link: physical_ai_studio
+:link-type: doc
+:link-alt: clickable cards
+
+Capture teleoperation datasets, train imitation-learning policies, and evaluate embodied AI workflows.
+:::
+
+:::{grid-item-card} **Geti™**
 :link: developer_tools/geti
 :link-type: doc
 :link-alt: clickable cards
 
-Use an end-to-end pipeline to create vision AI models.
+Use an end-to-end pipeline to label data and create vision AI models optimized for Intel.
+:::
+
+:::{grid-item-card} **Intel® oneAPI**
+:link: developer_tools/oneapi
+:link-type: doc
+:link-alt: clickable cards
+
+Develop and accelerate heterogeneous C++, SYCL, and data-parallel compute workloads.
 :::
 
 :::{grid-item-card} **AI Skills**

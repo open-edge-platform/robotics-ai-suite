@@ -1,19 +1,43 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { skillsQueryOptions } from "../../../data/skills";
+import { Pin } from "lucide-react";
+import { skillsQueryOptions, type SkillSource } from "../../../data/skills";
 import { CheckboxItem } from "../../CheckboxItem";
 import { SearchBox } from "../../SearchBox";
 import { SkillCard } from "./SkillCard";
 import { pluralize } from "@site/src/utils/pluralize";
 import styles from "./styles.module.css";
 
+const SOURCE_LABELS: Record<SkillSource, string> = {
+  toolkit: "Robotics AI Suite",
+  intel: "Intel Skills",
+};
+
 export default function SkillCatalog() {
   const { data: skills = [] } = useQuery(skillsQueryOptions());
 
   const [query, setQuery] = useState("");
+  const [selectedSources, setSelectedSources] = useState<SkillSource[]>([]);
   const [selectedHw, setSelectedHw] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showAllProducts, setShowAllProducts] = useState(false);
+
+  // Compute source facets from skills
+  const sourceOptions = useMemo(() => {
+    const counts: Record<SkillSource, number> = { toolkit: 0, intel: 0 };
+    skills.forEach((skill) => {
+      const src: SkillSource = skill.source === "toolkit" ? "toolkit" : "intel";
+      counts[src] += 1;
+    });
+
+    return (["toolkit", "intel"] as SkillSource[])
+      .filter((value) => counts[value] > 0)
+      .map((value) => ({
+        value,
+        label: SOURCE_LABELS[value],
+        count: counts[value],
+      }));
+  }, [skills]);
 
   // Compute hardware facets from skills
   const hwOptions = useMemo(() => {
@@ -62,6 +86,13 @@ export default function SkillCatalog() {
     const normalizedQuery = query.trim().toLowerCase();
 
     return skills.filter((skill) => {
+      if (selectedSources.length > 0) {
+        const src: SkillSource = skill.source === "toolkit" ? "toolkit" : "intel";
+        if (!selectedSources.includes(src)) {
+          return false;
+        }
+      }
+
       if (selectedHw.length > 0) {
         if (!skill.hwClass || !selectedHw.includes(skill.hwClass)) {
           return false;
@@ -81,11 +112,28 @@ export default function SkillCatalog() {
         return true;
       }
 
+      const sourceLabel =
+        skill.source === "toolkit" ? "robotics ai suite toolkit" : "intel";
       const haystack =
-        `${skill.name} ${skill.summary} ${skill.description} ${skill.hwClass || ""} ${(skill.products || []).join(" ")}`.toLowerCase();
+        `${skill.name} ${skill.summary} ${skill.description} ${sourceLabel} ${skill.hwClass || ""} ${(skill.products || []).join(" ")} ${(skill.labels || []).join(" ")}`.toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [skills, query, selectedHw, selectedProducts]);
+  }, [skills, query, selectedSources, selectedHw, selectedProducts]);
+
+  const pinnedShown = useMemo(
+    () => shown.filter((skill) => skill.pinned),
+    [shown]
+  );
+  const unpinnedShown = useMemo(
+    () => shown.filter((skill) => !skill.pinned),
+    [shown]
+  );
+
+  const toggleSource = (src: SkillSource) => {
+    setSelectedSources((prev) =>
+      prev.includes(src) ? prev.filter((v) => v !== src) : [...prev, src]
+    );
+  };
 
   const toggleHw = (hw: string) => {
     setSelectedHw((prev) =>
@@ -100,13 +148,20 @@ export default function SkillCatalog() {
   };
 
   const hasActiveFilters =
-    selectedHw.length > 0 || selectedProducts.length > 0 || query.trim() !== "";
+    selectedSources.length > 0 ||
+    selectedHw.length > 0 ||
+    selectedProducts.length > 0 ||
+    query.trim() !== "";
 
   const clearAll = () => {
+    setSelectedSources([]);
     setSelectedHw([]);
     setSelectedProducts([]);
     setQuery("");
   };
+
+  const showSeparatePinnedSection =
+    pinnedShown.length > 0 && unpinnedShown.length > 0;
 
   return (
     <section className="container margin-vert--xl">
@@ -126,6 +181,23 @@ export default function SkillCatalog() {
             value={query}
             onChange={({ target }) => setQuery(target.value)}
           />
+
+          {sourceOptions.length > 1 && (
+            <div className={styles.filterSection}>
+              <h4 className={styles.sectionTitle}>Source</h4>
+              <div className={styles.filterList}>
+                {sourceOptions.map((src) => (
+                  <CheckboxItem
+                    key={src.value}
+                    label={src.label}
+                    count={src.count}
+                    checked={selectedSources.includes(src.value)}
+                    onChange={() => toggleSource(src.value)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {hwOptions.length > 0 && (
             <div className={styles.filterSection}>
@@ -173,16 +245,44 @@ export default function SkillCatalog() {
           )}
         </aside>
 
-        <div>
+        <div className={styles.resultsColumn}>
           <p className={styles.count}>
             <span>{shown.length}</span> {pluralize(shown.length, "Skill")} found
           </p>
 
-          <div className={styles.grid}>
-            {shown.map((skill) => (
-              <SkillCard key={skill.id} skill={skill} />
-            ))}
-          </div>
+          {showSeparatePinnedSection ? (
+            <>
+              <div className={styles.groupSection}>
+                <h2 className={styles.groupHeading}>
+                  <Pin size={15} aria-hidden="true" />
+                  Pinned Skills
+                </h2>
+                <div className={styles.grid}>
+                  {pinnedShown.map((skill) => (
+                    <SkillCard key={skill.id} skill={skill} />
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.groupSection}>
+                <h2 className={styles.groupHeading}>
+                  {hasActiveFilters ? "Matching Skills" : "All Skills"}
+                </h2>
+                <div className={styles.grid}>
+                  {unpinnedShown.map((skill) => (
+                    <SkillCard key={skill.id} skill={skill} />
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className={styles.grid}>
+              {shown.map((skill) => (
+                <SkillCard key={skill.id} skill={skill} />
+              ))}
+            </div>
+          )}
+
           {shown.length === 0 ? (
             <p className={styles.emptyState}>
               No skills match the current search and filter selection.

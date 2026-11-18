@@ -82,7 +82,7 @@ source /opt/ros/jazzy/setup.bash
 
 At this point, the installation is complete. For next steps, explore the following:
 
-- [Intel Optimized Solutions and Ingredients](../../components/optimized_solutions/index.md)
+- [Software Index](../../resources/index.md)
 - [Autonomous Mobile Robot Tutorials and Demos](../../software_references/amr/index.md)
 
 

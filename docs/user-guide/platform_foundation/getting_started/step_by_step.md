@@ -571,7 +571,7 @@ sudo reboot
 
 ## 9. Next steps
 
-Setup is complete! For next steps, explore the [Tutorials](../../components/optimized_solutions/index.md) for ready-to-use applications and examples.
+Setup is complete! For next steps, explore the [Software Index](../../resources/index.md) for ready-to-use applications and examples.
 
 
 ```{include} fragment_conditional.md

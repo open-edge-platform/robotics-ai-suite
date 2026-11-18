@@ -92,13 +92,13 @@ function extractContent(html) {
 }
 
 function sectionForRelPath(relPath) {
-  if (
-    relPath.includes("hardware_blueprints") ||
-    relPath.includes("software_references")
-  ) {
-    return "Blueprints";
-  }
-  return "Development Stack";
+  if (relPath.includes("/hardware_blueprints/")) return "Blueprints";
+  if (relPath.includes("/software_references/")) return "Reference Workflows";
+  if (relPath.includes("/platform_foundation/")) return "Getting Started";
+  if (relPath.includes("/components/")) return "Components";
+  if (relPath.includes("/ai_resources/")) return "AI Toolkits";
+  if (relPath.includes("/resources/")) return "Resources";
+  return "Robotics AI Suite";
 }
 
 function walkHtml(dir, onFile) {
@@ -138,6 +138,16 @@ function docusaurusEntries(baseUrl) {
         "GPUs, and NPUs. Browse models available on Hugging Face, " +
         "pre-optimized and ready for fine-tuning or edge deployment. " +
         "Vision AI, Gen AI, Physical AI.",
+    },
+    {
+      id: "page-skills",
+      title: "AI Skills",
+      section: "AI Skills",
+      url: `${baseUrl}skills/`,
+      content:
+        "AI Skills catalog for coding agents and workflows. Robotics AI Suite " +
+        "toolkit skills and Intel AI skills for ROS 2, Nav2, wandering, " +
+        "Intel Arc XPU, PyTorch, OpenVINO, oneAPI, and performance tuning.",
     },
   ];
 }

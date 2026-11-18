@@ -2,6 +2,17 @@
 
 Find the right skills to accelerate your development project, from proof-of-concept generators to interactive optimizers to find the right algorithm for your use case.
 
+::::{grid} 1
+
+:::{grid-item-card} **Explore the Interactive AI Skills Catalog**
+:link: ../../../skills/
+:link-type: url
+:link-alt: Open the AI Skills Catalog
+
+Browse, search, and filter both **Robotics AI Suite** toolkit skills and upstream **Intel AI** skills in the interactive catalog.
+:::
+::::
+
 > [!NOTE]
 > These skills are used by AI agents. AI may produce undesired results. These are offered as learning and experimental tools only. Always verify your robotics solution follows acceptable guidance for safety and reliability.
 

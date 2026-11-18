@@ -63,27 +63,27 @@ Continue to the System Requirements guide to learn about supported Intel process
 ![Robot Background](./images/RobotBackground.png)
 
 :::{toctree}
-:caption: Operating System & Hardware
+:caption: Getting Started
 :hidden:
 
 System Requirements <platform_foundation/system_requirements.md>
-Getting Started <platform_foundation/getting_started.md>
+Development Kits <platform_foundation/development_kits/index.md>
+Installation & Setup <platform_foundation/getting_started.md>
 :::
 
 :::{toctree}
 :caption: Components
 :hidden:
 
-
-Robotics Components optimized for Intel <components/optimized_solutions/index>
+ROS 2 Runtime <components/runtime/index>
 Real-time Determinism <components/realtime_determinism/index>
-Benchmarking <components/benchmarking/index>
-Security <components/security/index>
-Navigation <components/navigation/index>
-Runtime <components/runtime/index>
+Sensors & Perception <components/sensors/index>
+Navigation & SLAM <components/navigation/index>
+Manipulation <components/manipulation/index>
 Simulation <components/simulation/index>
-Virtualization <components/virtualization/index>
-Sensors <components/sensors/index>
+Virtualization & Workshops <components/virtualization/index>
+Benchmarking & Profiling <components/benchmarking/index>
+Security <components/security/index>
 :::
 
 
@@ -91,11 +91,11 @@ Sensors <components/sensors/index>
 :caption: AI Toolkits
 :hidden:
 
-AI Developer Tools and Frameworks <ai_resources/intel_powered_ai>
+Overview <ai_resources/intel_powered_ai>
 OpenVINO™ <ai_resources/openvino/index>
 PyTorch XPU <ai_resources/developer_tools/pytorch-xpu>
-Physical AI Studio  <ai_resources/physical_ai_studio>
-Geti <ai_resources/developer_tools/geti>
+Physical AI Studio <ai_resources/physical_ai_studio>
+Geti™ <ai_resources/developer_tools/geti>
 Intel® oneAPI <ai_resources/developer_tools/oneapi>
 AI Skills <ai_resources/skills/index>
 :::
@@ -111,17 +111,22 @@ Stationary Arm <hardware_blueprints/stationary_arm/index>
 :::
 
 :::{toctree}
-:caption: Resources
+:caption: Reference Workflows
 :hidden:
 
-Release Notes <resources/release-notes.md>
 Autonomous Mobile Robot <software_references/amr/index>
 Humanoid Robot <software_references/humanoid/index>
 Stationary Arm <software_references/stationary_arm/index>
+:::
+
+:::{toctree}
+:caption: Resources
+:hidden:
+
 Software Index <resources/index>
 Heterogeneous Computing <resources/heterogeneous_computing.md>
 Troubleshooting <resources/troubleshooting.md>
 Glossary <resources/glossary.md>
+Release Notes <resources/release-notes.md>
 Get Help or Contribute <https://docs.openedgeplatform.intel.com/dev/OEP-articles/contribution-guide.html>
-Hack-a-thon Resources <resources/hackathon_resources.md>
 :::

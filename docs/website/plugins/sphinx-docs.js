@@ -60,6 +60,16 @@ function stageSphinxHtml() {
   // Legacy ai-suite-robotics.html redirects to canonical /development-stack/ai-suite-robotics/
   fs.writeFileSync(path.join(dest, "ai-suite-robotics.html"), makeRedirectHtml(canonicalHomeUrl));
 
+  // Legacy components/optimized_solutions/ hub redirects to Navigation & SLAM
+  const legacyOptimizedDir = path.join(dest, "components", "optimized_solutions");
+  fs.mkdirSync(legacyOptimizedDir, { recursive: true });
+  const navHubUrl = `${baseUrl}${ROUTE_SUBPATH}/components/navigation/`;
+  fs.writeFileSync(path.join(legacyOptimizedDir, "index.html"), makeRedirectHtml(navHubUrl));
+  fs.writeFileSync(
+    path.join(dest, "components", "optimized_solutions.html"),
+    makeRedirectHtml(navHubUrl),
+  );
+
   // Create backwards-compatible .html redirects for any subdirectory containing index.html
   function createHtmlRedirects(dir, relPath = "") {
     const entries = fs.readdirSync(dir, { withFileTypes: true });

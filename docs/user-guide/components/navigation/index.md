@@ -125,6 +125,14 @@ Multi-robot mapping and map merging accelerated with AVX2 and Level-Zero compute
 Real-time 3D OctoMap voxel mapping from RealSense depth cameras for multi-level spatial awareness.
 :::
 
+:::{grid-item-card} **ADBSCAN Follow-me**
+:link: ../optimized_solutions/adbscan-follow-me
+:link-type: doc
+:link-alt: clickable cards
+
+Detect and follow a person using adaptive DBSCAN clustering on LiDAR or RealSense point clouds.
+:::
+
 :::{grid-item-card} **Autonomous Frontier Exploration**
 :link: ../../software_references/amr/simulation/wandering_sim
 :link-type: doc
@@ -191,4 +199,7 @@ its-path-planner-plugin
 navigation-relocalization
 dynamic-obstacle-avoidance
 lio-livo-pipelines
+Collaborative Visual SLAM <../optimized_solutions/collaborative-slam>
+FastMapping Algorithm <../optimized_solutions/run-fastmapping-algorithm>
+ADBSCAN Follow-me <../optimized_solutions/adbscan-follow-me>
 :::

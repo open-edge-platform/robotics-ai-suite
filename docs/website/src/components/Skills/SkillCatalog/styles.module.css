@@ -82,12 +82,40 @@
   }
 }
 
+.resultsColumn {
+  min-width: 0;
+}
+
+.groupSection {
+  margin-top: var(--size-24);
+}
+
+.groupSection + .groupSection {
+  margin-top: var(--size-40);
+}
+
+.groupHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--size-8);
+  font-size: var(--size-14);
+  font-weight: 700;
+  color: #ffffffcc;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--size-16);
+}
+
 .grid {
   gap: 1.5rem;
   display: grid;
   margin-top: var(--size-24);
   align-items: stretch;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.groupSection > .grid {
+  margin-top: 0;
 }
 
 .filterItem {

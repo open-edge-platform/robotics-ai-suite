@@ -52,4 +52,4 @@ For detailed instructions, see the [Image Composer Tool repository](https://gith
 
 8. Boot from the USB drive and install the image to your system.
 
-9. **Setup complete!** Next Steps: Explore the [Tutorials](../../components/optimized_solutions/index.md) for ready-to-use applications and examples.
+9. **Setup complete!** Next Steps: Explore the [Software Index](../../resources/index.md) for ready-to-use applications and examples.

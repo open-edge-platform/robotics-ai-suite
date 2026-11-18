@@ -76,7 +76,6 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "README.md",
-    "components/sensors/cameras/index.md",
 ]
 
 # The suffix(es) of source filenames.

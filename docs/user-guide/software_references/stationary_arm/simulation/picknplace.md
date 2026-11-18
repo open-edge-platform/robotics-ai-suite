@@ -222,4 +222,4 @@ resource for anyone interested in robotic simulations.
 ## Troubleshooting
 
 For general robot issues, refer to
-the [troubleshooting guide](../../../../resources/troubleshooting).
+the [troubleshooting guide](../../../resources/troubleshooting.md).

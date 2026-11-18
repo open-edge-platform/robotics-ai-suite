@@ -386,5 +386,5 @@ ros2 launch wandering_bringup wandering_jackal.launch.py \
 
 Now that you've deployed the `wandering` workflow on physical hardware:
 
-- Visit [Optimized Solutions](../../../components/optimized_solutions/index.md) to explore further AMR-specific components, including OpenVINO™-accelerated workloads.
+- Visit [Navigation & SLAM](../../../components/navigation/index.md) and the [Software Index](../../../resources/index.md) to explore further AMR-specific components, including OpenVINO™-accelerated workloads.
 - See the [Clearpath Robotics Jackal blueprint](../../../hardware_blueprints/amr/clearpath-jackal.md) for more hardware configuration details.

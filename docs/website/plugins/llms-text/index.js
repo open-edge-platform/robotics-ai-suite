@@ -24,7 +24,7 @@ function LLMsTxt(_context, options) {
     postBuild: async ({ routes, outDir, siteConfig, siteDir }) => {
       console.log("[llms-txt] Generating llms.txt");
 
-      const sidebars = getDocItemsFromSidebars(routes, siteConfig.baseUrl);
+      const sidebars = getDocItemsFromSidebars(routes, siteConfig.baseUrl, siteDir);
       const config = {
         title: siteConfig.title,
         siteUrl: siteConfig.url,
@@ -43,8 +43,8 @@ function LLMsTxt(_context, options) {
       );
       console.log("[llms-txt] Wrote llms-full.txt");
 
-      await copyOverMarkdownFiles(sidebars, config);
-      console.log("[llms-txt] Copied raw markdown files");
+      const exportedCount = await copyOverMarkdownFiles(sidebars, config);
+      console.log(`[llms-txt] Copied ${exportedCount} raw markdown files`);
     },
   };
 }

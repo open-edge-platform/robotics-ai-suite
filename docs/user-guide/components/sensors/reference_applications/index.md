@@ -1,7 +1,6 @@
-# Sensor Software Solutions
+# Perception & Point Cloud Solutions
 
-Use these applications to validate RealSense cameras and process 3D
-point cloud data from RealSense cameras or LiDAR sensors.
+Use these applications and Intel-accelerated libraries to validate RealSense cameras, process 3D point cloud data from RealSense or LiDAR sensors, and accelerate visual feature extraction.
 
 
 ::::{grid} 2
@@ -21,13 +20,41 @@ Validate camera streaming and integration with ROS 2 for robotics vision workloa
 
 Process 3D point cloud data to segment ground surfaces and detect traversable regions.
 :::
+
+:::{grid-item-card} **PCL oneAPI Component**
+:link: ../../optimized_solutions/libpcl-oneapi
+:link-type: doc
+:link-alt: clickable cards
+
+Accelerate point cloud filtering, features, segmentation, and registration on Intel GPUs.
+:::
+
+:::{grid-item-card} **FLANN oneAPI Component**
+:link: ../../optimized_solutions/libflann-oneapi
+:link-type: doc
+:link-alt: clickable cards
+
+Accelerate 3D KD-Tree nearest-neighbor and radius spatial indexing with Intel oneAPI and SYCL.
+:::
+
+:::{grid-item-card} **GPU ORB Extractor**
+:link: ../../optimized_solutions/orb-extractor
+:link-type: doc
+:link-alt: clickable cards
+
+Extract Visual SLAM keypoints and descriptors with Intel GPU acceleration.
+:::
 ::::
 
 
 
 :::{toctree}
 :maxdepth: 1
+:hidden:
 
 RealSense Camera with ROS 2 <realsense-ros2>
 3D Pointcloud Groundfloor Segmentation <pointcloud-groundfloor-segmentation>
+PCL oneAPI Component <../../optimized_solutions/libpcl-oneapi>
+FLANN oneAPI Component <../../optimized_solutions/libflann-oneapi>
+GPU ORB Extractor <../../optimized_solutions/orb-extractor>
 :::

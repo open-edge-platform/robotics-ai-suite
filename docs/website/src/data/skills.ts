@@ -1,5 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
+export type SkillSource = "toolkit" | "intel";
+
 export type Skill = {
   id: string;
   name: string;
@@ -10,7 +12,52 @@ export type Skill = {
   labels: string[];
   installCommand: string;
   sourceUrl: string;
+  source?: SkillSource;
+  pinned?: boolean;
+  pinnedBadge?: string;
 };
+
+export type PinnedSkillConfig =
+  | string
+  | {
+      id: string;
+      badge?: string;
+    };
+
+/**
+ * Statically pinned skills showcased at the top of /skills/.
+ * Entries can be a skill `id` string or `{ id, badge }` for a custom callout
+ * (defaults to "Pinned"). Works for both TOOLKIT_SKILLS and Intel skills.
+ * Array order controls display order in the Pinned section.
+ */
+export const PINNED_SKILLS: PinnedSkillConfig[] = [
+  { id: "wandering-sample", badge: "Featured" },
+  { id: "xpu-deploy-plan", badge: "Featured" },
+  "cuda-to-xpu-migration",
+];
+
+/**
+ * Skills shipped directly with the Robotics AI Suite repository (.github/skills/).
+ * These are highlighted in the catalog with a "Robotics AI Suite" badge and can be
+ * filtered via the Source facet.
+ */
+export const TOOLKIT_SKILLS: Skill[] = [
+  {
+    id: "wandering-sample",
+    name: "wandering-sample",
+    summary:
+      "Review-first workflow for changes in components/wandering and tutorial packages.",
+    description:
+      "Review-first workflow for changes in components/wandering and tutorial packages. Use when editing Wandering launch files, docs, tests, Nav2 wiring, RTAB-Map, RealSense, or robot bring-up paths.",
+    products: ["Robotics AI Suite", "ROS 2", "Nav2"],
+    labels: ["ROS 2", "Nav2", "AMR"],
+    installCommand:
+      "npx skills add open-edge-platform/robotics-ai-suite --skill wandering-sample",
+    sourceUrl:
+      "https://github.com/open-edge-platform/robotics-ai-suite/blob/main/.github/skills/wandering-sample/SKILL.md",
+    source: "toolkit",
+  },
+];
 
 export const FALLBACK_SKILLS: Skill[] = [
   {
@@ -750,6 +797,54 @@ export function parseSkillsHtml(html: string): Skill[] {
 
 export const SKILLS_CATALOG_URL = "https://intel.github.io/skills/";
 
+export function mergeCatalogSkills(intelSkills: Skill[]): Skill[] {
+  const pinnedMap = new Map<string, { order: number; badge?: string }>();
+  PINNED_SKILLS.forEach((entry, index) => {
+    if (typeof entry === "string") {
+      pinnedMap.set(entry, { order: index });
+    } else {
+      pinnedMap.set(entry.id, { order: index, badge: entry.badge });
+    }
+  });
+
+  const toolkitIds = new Set(TOOLKIT_SKILLS.map((s) => s.id));
+  const combined: Skill[] = [
+    ...TOOLKIT_SKILLS.map((skill) => ({
+      ...skill,
+      source: "toolkit" as const,
+    })),
+    ...intelSkills
+      .filter((skill) => !toolkitIds.has(skill.id))
+      .map((skill) => ({
+        ...skill,
+        source: (skill.source || "intel") as SkillSource,
+      })),
+  ].map((skill) => {
+    const pinInfo = pinnedMap.get(skill.id);
+    if (!pinInfo && !skill.pinned) {
+      return skill;
+    }
+    return {
+      ...skill,
+      pinned: true,
+      pinnedBadge: pinInfo?.badge ?? skill.pinnedBadge ?? "Pinned",
+    };
+  });
+
+  return combined.sort((a, b) => {
+    const aPin = pinnedMap.get(a.id);
+    const bPin = pinnedMap.get(b.id);
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    if (aPin && bPin) return aPin.order - bPin.order;
+    if (a.source === "toolkit" && b.source !== "toolkit") return -1;
+    if (a.source !== "toolkit" && b.source === "toolkit") return 1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+export const INITIAL_SKILLS: Skill[] = mergeCatalogSkills(FALLBACK_SKILLS);
+
 export async function fetchSkills(): Promise<Skill[]> {
   const response = await fetch(SKILLS_CATALOG_URL);
   if (!response.ok) {
@@ -760,15 +855,15 @@ export async function fetchSkills(): Promise<Skill[]> {
   if (skills.length === 0) {
     throw new Error("No skills found in fetched catalog");
   }
-  return skills;
+  return mergeCatalogSkills(skills);
 }
 
 export const skillsQueryOptions = () =>
   queryOptions({
     queryKey: ["intel-skills"],
     queryFn: fetchSkills,
-    initialData: FALLBACK_SKILLS,
+    initialData: INITIAL_SKILLS,
     staleTime: 10 * 60 * 1000,
   });
 
-export default FALLBACK_SKILLS;
+export default INITIAL_SKILLS;

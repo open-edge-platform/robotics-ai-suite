@@ -139,6 +139,11 @@ const config = {
             position: "left",
           },
           {
+            to: "/skills/",
+            label: "AI Skills",
+            position: "left",
+          },
+          {
             // `pathname://` links to the staged static Sphinx site directly,
             // bypassing the SPA router and broken-link checks.
             to: "pathname:///development-stack/hardware_blueprints/",

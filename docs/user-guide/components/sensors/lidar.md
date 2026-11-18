@@ -1,10 +1,10 @@
-<!--hide_directive
+
 ```{eval-rst}
 .. meta::
    :description: Validated LiDAR sensors for the Robotics AI Suite, with ROS 2 driver installation, sensor placement, and frame transform guidance.
    :keywords: LiDAR, Velodyne VLP-16, RPLIDAR, SICK nanoScan3 Pro, ROS 2, point cloud, laser scan, navigation
 ```
-hide_directive-->
+
 
 # LiDAR
 
@@ -32,9 +32,9 @@ before integrating with navigation or perception stacks.
 
 Install and configure the ROS 2 driver corresponding to your sensor interface:
 
-<!--hide_directive ::::{tab-set} hide_directive-->
-<!--hide_directive :::{tab-item} hide_directive--> **Velodyne Puck (VLP-16)**
-<!--hide_directive :sync: velodyne hide_directive-->
+ ::::{tab-set} 
+ :::{tab-item}  **Velodyne Puck (VLP-16)**
+ :sync: velodyne 
 
 The Velodyne Puck connects over Ethernet and streams raw UDP packets that are unpacked into
 3D point clouds.
@@ -50,9 +50,9 @@ The Velodyne Puck connects over Ethernet and streams raw UDP packets that are un
   ```
 - **Default Output:** `/velodyne_points` (`sensor_msgs/msg/PointCloud2`)
 
-<!--hide_directive ::: hide_directive-->
-<!--hide_directive :::{tab-item} hide_directive--> **RoboPeak / Slamtec RPLIDAR**
-<!--hide_directive :sync: rplidar hide_directive-->
+ ::: 
+ :::{tab-item}  **RoboPeak / Slamtec RPLIDAR**
+ :sync: rplidar 
 
 RoboPeak/Slamtec 2D scanners connect over USB serial (typically `/dev/ttyUSB0`) to publish
 360-degree planar scan profiles.
@@ -70,9 +70,9 @@ RoboPeak/Slamtec 2D scanners connect over USB serial (typically `/dev/ttyUSB0`) 
   ```
 - **Default Output:** `/scan` (`sensor_msgs/msg/LaserScan`)
 
-<!--hide_directive ::: hide_directive-->
-<!--hide_directive :::{tab-item} hide_directive--> **SICK nanoScan3 Pro**
-<!--hide_directive :sync: sick hide_directive-->
+ ::: 
+ :::{tab-item}  **SICK nanoScan3 Pro**
+ :sync: sick 
 
 The SICK nanoScan3 Pro is an industrial safety LiDAR communicating over Ethernet via the SICK
 safety scanner protocol.
@@ -88,8 +88,8 @@ safety scanner protocol.
   ```
 - **Default Output:** `/scan` (`sensor_msgs/msg/LaserScan`)
 
-<!--hide_directive ::: hide_directive-->
-<!--hide_directive :::: hide_directive-->
+ ::: 
+ :::: 
 
 ### 2. Sensor Placement and Frame Transforms (TF)
 

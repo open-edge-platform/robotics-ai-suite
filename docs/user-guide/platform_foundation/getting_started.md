@@ -1,4 +1,4 @@
-# Getting Started
+# Installation & Setup
 
 This guide sets up and installs the Robotics AI Suite, providing a common base
 for running the included software and solutions and for developing your own
