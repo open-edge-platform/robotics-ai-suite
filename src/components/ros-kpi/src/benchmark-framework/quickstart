@@ -88,6 +88,7 @@ case $choice in
         echo "  ${GREEN}2)${NC} Single run  + rosbag recording"
         echo "  ${GREEN}3)${NC} Single run  + rosbag recording + plots"
         echo "  ${GREEN}4)${NC} Benchmark   (multiple runs, then aggregate KPIs)"
+        echo "  ${GREEN}5)${NC} Clearpath Jackal hardware run (record + plot)"
         echo "  ${GREEN}0)${NC} Back"
         echo ""
         read -rp "Choice: " w_choice
@@ -129,6 +130,24 @@ case $choice in
                     [[ $i -lt $runs ]] && sleep "$pause"
                 done
                 uv run python src/aggregate_kpi.py "$bench_dir"
+                ;;
+            5)
+                echo ""
+                echo "Requires the Clearpath base services already running on the robot."
+                echo "Edit config/wandering_jackal_run.yaml to set ROBOT_NAMESPACE first."
+                read -rp "Run from a separate workstation over SSH? Remote IP (blank = run locally on the WCL Edge): " remote_ip
+                remote_user=""
+                if [[ -n "$remote_ip" ]]; then
+                    read -rp "SSH username (default=administrator): " remote_user
+                    remote_user=${remote_user:-administrator}
+                fi
+                read -rp "Timeout in seconds (default=300): " timeout
+                timeout=${timeout:-300}
+                if [[ -n "$remote_ip" ]]; then
+                    bash src/wandering_jackal_run.sh --timeout "$timeout" --record --plot --remote-ip "$remote_ip" --remote-user "$remote_user"
+                else
+                    bash src/wandering_jackal_run.sh --timeout "$timeout" --record --plot --remote-ip ""
+                fi
                 ;;
             0) echo "Back."; exit 0 ;;
             *) echo "Invalid choice"; exit 1 ;;

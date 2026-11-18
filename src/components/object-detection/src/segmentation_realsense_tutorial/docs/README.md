@@ -8,11 +8,10 @@ SPDX-License-Identifier: Apache-2.0
 
 ---
 
-This tutorial serves as an example for understanding the utilization of
-the ROS 2 OpenVINO™ node. It outlines the steps for installing and
-executing the semantic segmentation model using the ROS 2 OpenVINO™
-toolkit. This tutorial uses the Intel® RealSense™ camera image as input
-and performs inference on CPU, GPU devices.
+This tutorial demonstrates semantic segmentation with the ROS 2
+OpenVINO™ node. It explains how to install the node and run a model using
+images from an Intel® RealSense™ camera. Inference can run on a CPU or
+GPU.
 
 ## Prerequisites
 
@@ -22,16 +21,24 @@ and performs inference on CPU, GPU devices.
 - [Install Robotics AI Dev Kit Deb packages](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/step_by_step/#6-install-robotics-ai-suite-deb-packages)
 - [Install the Intel® NPU Driver on Intel® Core™ Ultra Processors (if applicable)](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/step_by_step/#7-install-the-intel-npu-driver-on-intel-core-ultra-processors)
 
-## Install OpenVINO™ tutorial packages
+## Install the tutorial package
 
-``` bash
+```bash
 sudo apt install ros-humble-segmentation-realsense-tutorial
 ```
 
-## Run Demo with Intel® RealSense™ Topic Input
+For ROS 2 Jazzy, replace `humble` in the package name with `jazzy`.
 
-Run one of the following commands to launch the segmentation tutorial
-with a specific inference engine:
+## Run the Demo with Intel® RealSense™ Image Topics
+
+Run the following command to launch the segmentation tutorial. By
+default it runs on the GPU, and on the CPU when no GPU is available:
+
+```bash
+ros2 launch segmentation_realsense_tutorial openvino_segmentation.launch.py
+```
+
+To select the inference engine, add the `device` argument:
 
 - GPU inference engine
 
@@ -46,12 +53,31 @@ with a specific inference engine:
   ```
 
 > [!NOTE]
-> If no device is specified, the GPU is selected by default as inference
-> engine.
+> The default, `device:=AUTO`, uses OpenVINO's automatic device
+> selection (`AUTO:GPU,CPU`). If the selected device is not available,
+> the tutorial stops and lists the devices OpenVINO can use.
 
-Once the tutorial is started, the `deeplabv3` model is downloaded,
-converted into IR files, and the inference process begins, utilizing the
-input from the Intel® RealSense™ camera.
+When launched, the node downloads the `deeplabv3` model, converts it to
+OpenVINO IR format, and begins inference on images from the Intel®
+RealSense™ camera.
 
-To exit the application, press `Ctrl-c` in the terminal where the launch
-script was executed.
+## Run without a display
+
+On a system without a display, for example over SSH, the launch file
+runs in headless mode and does not start RViz. The `headless` launch
+argument controls this:
+
+- `headless:=auto` (default): headless when neither `DISPLAY` nor
+  `WAYLAND_DISPLAY` is set, or the X display cannot be opened
+- `headless:=true`: always headless, even with a display
+- `headless:=false`: always start RViz; stops with an error when no
+  display is available
+
+To see the segmentation results in headless mode, run:
+
+```bash
+ros2 topic echo /ros2_openvino_toolkit/segmented_obejcts | grep -E "object_name|probability"
+```
+
+To stop the application, press `Ctrl+C` in the terminal running the
+launch command.

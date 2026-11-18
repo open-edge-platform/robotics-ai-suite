@@ -114,6 +114,10 @@ def generate_launch_description():  # pylint: disable=too-many-locals
             "ros2",
             "topic",
             "echo",
+            "--qos-reliability",
+            "reliable",
+            "--qos-durability",
+            "transient_local",
             "/map",
             "nav_msgs/msg/OccupancyGrid",
             "--once",
@@ -361,7 +365,6 @@ def generate_launch_description():  # pylint: disable=too-many-locals
                         actions_on_successful_exit,
                         actions=[
                             map_ready_message,
-                            slam_toolbox_nav2,
                             rtabmap_nav2,
                             wandering,
                         ],

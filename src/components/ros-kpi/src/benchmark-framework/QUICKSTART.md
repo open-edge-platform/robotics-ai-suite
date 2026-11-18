@@ -182,12 +182,12 @@ make help           # Show infrastructure targets (install, grafana, clean, lint
 ### ROS2 Not Found
 
 ```bash
-# Source ROS2 (Humble or Jazzy)
-source /opt/ros/humble/setup.bash   # or /opt/ros/jazzy/setup.bash
+# Source ROS2 (Humble, Jazzy or Lyrical)
+source /opt/ros/humble/setup.bash   # or /opt/ros/jazzy/setup.bash, /opt/ros/lyrical/setup.bash
 export ROS_DOMAIN_ID=0
 ```
 
-See the [Robotics AI Suite Getting Started Guide](https://developer.robotics.intel.com/development-stack/platform_foundation/getting_started/index.html) for installation instructions.
+See the [Intel Robotics AI Suite Getting Started Guide](https://docs.openedgeplatform.intel.com/2025.2/edge-ai-suites/robotics-ai-suite/robotics/gsg_robot/index.html) for installation instructions.
 
 Or use the auto-setup script:
 

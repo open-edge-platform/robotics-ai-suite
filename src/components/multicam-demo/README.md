@@ -33,24 +33,31 @@ Prepare the target system following the [official documentation](https://develop
 
 ### Build
 
-To build debian packages, export `ROS_DISTRO` env variable to desired platform and run `make package` command. After build process successfully finishes, built packages will be available in the root directory. The following command is an example for `Humble` distribution.
+The package source is located in `src/pyrealsense2-ai-demo`. Debian packages are built natively with CPack.
+Install the declared build dependencies, then export the `ROS_DISTRO` env variable to the desired platform and run `make package`.
+After the build process successfully finishes, built packages will be available in `build/debian-packages/packages`.
+The following commands are an example for the `Humble` distribution.
 
 ```bash
+sudo ROS_DISTRO=humble make install-debian-build-deps
 ROS_DISTRO=humble make package
 ```
 
 You can list all built packages:
 
 ```bash
-ls|grep -i .deb
+ls build/debian-packages/packages/*.deb
 ```
 
 ```text
-ros-humble-pyrealsense2-ai-demo_*_amd64.deb
-ros-humble-pyrealsense2-ai-demo-build-deps_*_amd64.deb
+build/debian-packages/packages/ros-humble-pyrealsense2-ai-demo_*_amd64.deb
 ```
 
-`*build-deps*.deb` package is generated during build process and installation of such packages could be skipped on target platform.
+To build the packages inside a ROS container instead of on the host:
+
+```bash
+ROS_DISTRO=humble make container-package
+```
 
 To build Docker image:
 
@@ -82,7 +89,7 @@ Finally, install the Debian package that was built via `make package`:
 
 ```bash
 sudo apt update
-sudo apt install ./ros-${ROS_DISTRO}-pyrealsense2-ai-demo_*_amd64.deb
+sudo apt install ./build/debian-packages/packages/ros-${ROS_DISTRO}-pyrealsense2-ai-demo_*_amd64.deb
 ```
 
 **Note:**
@@ -97,10 +104,16 @@ The installation will run for 25-30 minutes and consumes approx 2GB of the disk 
 
 ### Test
 
-To run unit tests execute the below command:
+To run unit tests natively execute the below command:
 
 ```bash
 make test
+```
+
+To run the unit tests inside a ROS container instead:
+
+```bash
+make container-test
 ```
 
 ### Development
@@ -150,15 +163,22 @@ lint-markdown        Run Markdown linter using super-linter
 lint-python          Run Python linter using super-linter
 lint-yaml            Run YAML linter using super-linter
 image                Build Docker image
-test                 Run unit tests in container
-package              Build Debian packages in container
+build                Configure and build the package components natively
+test                 Run unit tests natively against the package sources
+test-e2e             Run unit tests natively against the installed Debian package
+package              Build Debian packages natively with CPack
+debian-build-deps    Generate Debian Build-Depends control files without configuring components
+install-debian-build-deps Install generated Debian Build-Depends with APT
+container-debian-build-deps Generate Debian Build-Depends in container
+container-package    Build Debian packages inside ROS container on host
+container-test       Run unit tests inside ROS container on host
 source-package       Create source package tarball
 yolov8_models        Prepare the yolov8 models
 mobilenet_models     Prepare the mobilenet models
 models               Prepare all models (yolov8 and mobilenet)
 demo                 Run the RealSense AI Demo
 bash                 Open bash shell in container
-clean                Remove Docker image
+clean                Remove local build, package, and test artifacts and the demo Docker image
 ```
 
 ## Usage

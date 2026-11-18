@@ -1,3 +1,9 @@
+ros-jazzy-robot-config-plugins (3.6-5) noble; urgency=medium
+
+  * Set CMAKE_INSTALL_PREFIX to /opt/ros/<distro> during Debian packaging.
+
+ -- ECI Maintainer <eci.maintainer@intel.com>  Tue, 03 Nov 2026 00:00:00 +0000
+
 ros-jazzy-robot-config-plugins (3.6-4) noble; urgency=medium
 
   * Migrate Debian packaging metadata to CMake/CPACK; remove legacy debian

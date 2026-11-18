@@ -51,7 +51,7 @@ gazebo:
   press_play: true
 
 cleanup:
-  sweep: "ros2 |gz sim|gz_server|gz server|gazebo|rtabmap|nav2|turtlebot|warehouse.launch|rviz2"
+  sweep: "ros2 |gz sim|gz_server|gz server|/opt/ros/[a-z]*/lib/|gazebo|rtabmap|nav2|turtlebot|warehouse.launch|rviz2"
 
 session:
   output_subdir: "picknplace"

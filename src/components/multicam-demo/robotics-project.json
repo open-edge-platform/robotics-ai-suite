@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "ci": {
+    "manifest_namespace": "pyrealsense2-ai-demo",
+    "changelog_components": [
+      "pyrealsense2-ai-demo"
+    ],
+    "package_components": [
+      {
+        "path": "pyrealsense2-ai-demo"
+      }
+    ]
+  }
+}

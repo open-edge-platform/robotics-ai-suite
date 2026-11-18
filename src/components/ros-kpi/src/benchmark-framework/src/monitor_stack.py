@@ -212,8 +212,8 @@ class MonitoringSession:
                 ['ssh', '-T', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=5',
                  '-o', 'StrictHostKeyChecking=no',
                  f'{self.remote_user}@{self.remote_ip}',
-                 # Login shell so .bashrc / launch-sourced exports are visible
-                 r'bash -l -c "echo ${ROS_DOMAIN_ID:-not_set}"'],
+                 # Single quotes: the remote's outer shell must not expand the variable first.
+                 "bash -l -c 'echo ${ROS_DOMAIN_ID:-not_set}'"],
                 capture_output=True, text=True, timeout=10,
                 stdin=subprocess.DEVNULL, check=False,
             )
@@ -261,6 +261,18 @@ class MonitoringSession:
             )
             # FastDDS / rmw_fastrtps – unicast peer list (always override)
             env['ROS_STATIC_PEERS'] = self.remote_ip
+            # ROS_STATIC_PEERS only reaches the first few participant ports; list them all
+            # unless the caller (e.g. benchmark_runner.sh) already provides a profile.
+            if (env.get('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp').startswith('rmw_fastrtps')
+                    and not env.get('FASTRTPS_DEFAULT_PROFILES_FILE')):
+                from fastdds_peers import write_profile
+                try:
+                    profile = write_profile(self.remote_ip, int(env.get('ROS_DOMAIN_ID', '0')),
+                                            self.output_dir / 'fastdds_remote_peers.xml')
+                    env['FASTRTPS_DEFAULT_PROFILES_FILE'] = str(profile)
+                    logger.info(f"   ✅ Fast DDS peers: all participants on {self.remote_ip}")
+                except (OSError, ValueError) as exc:
+                    logger.info(f"   ℹ  Fast DDS peer profile not written ({exc}); using ROS_STATIC_PEERS only.")
         return env
 
     def start_monitors(self):

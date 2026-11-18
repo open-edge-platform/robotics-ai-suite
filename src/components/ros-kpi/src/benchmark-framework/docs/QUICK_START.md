@@ -250,7 +250,7 @@ uv run python src/monitor_stack.py --node /slam_toolbox
 
 ### Monitor exits immediately
 
-- Verify ROS2 environment is sourced: `source /opt/ros/humble/setup.bash` (or `jazzy`)
+- Verify ROS2 environment is sourced: `source /opt/ros/humble/setup.bash` (or `jazzy`, `lyrical`)
 - Check if the target node exists: `ros2 node list`
 
 ### Visualizations not generated
@@ -267,7 +267,7 @@ uv run python src/monitor_stack.py --node /slam_toolbox
 
 ## 📚 Need More Details?
 
-See the full [README.md](../README.md) for:
+See the full [README.md](README.md) for:
 
 - Individual script documentation
 - Detailed API reference

@@ -18,6 +18,12 @@
 #   --output-parent DIR  Session parent directory (overrides yaml session.output_subdir)
 #   --side-terminals     Open htop + qmassa in Terminator windows
 #   --no-prompt          Export default KPI outputs and skip interactive menus
+#   --remote-ip HOST      SSH host/IP of a remote robot already running (or to
+#                         run) the pipeline; overrides yaml remote.host. When
+#                         set, launch.cmd runs on that host over SSH instead of
+#                         locally, and DDS peer discovery is configured so bag
+#                         recording and graph monitoring can reach it.
+#   --remote-user USER    SSH username for --remote-ip (overrides yaml remote.user)
 #
 #   All scenario behavior (launch command, bag topics, stop condition, sweep
 #   pattern, Gazebo play button, etc.) is controlled by the YAML run profile.
@@ -55,8 +61,17 @@ RECORD_PID=0
 # our own process group.  Launched processes are started with 'setsid', giving
 # them a new session/PGID, so they will be killed.  make's recipe shell and
 # benchmark_runner.sh share our PGID and are therefore excluded automatically.
+#
+# When REMOTE_HOST is set (--remote-ip), CONF_SWEEP targets the pipeline
+# launched on that host over SSH instead — pkill runs there, not locally.
 _pkill_sweep() {
   local _sig="${1:--SIGINT}"
+  if [[ -n "${REMOTE_HOST:-}" ]]; then
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 \
+      "${REMOTE_USER}@${REMOTE_HOST}" \
+      "pkill ${_sig} -f '${CONF_SWEEP:-ros2 }'" 2>/dev/null || true
+    return
+  fi
   local _my_pgid _pid _pgid
   _my_pgid=$(ps -o pgid= -p $$ | tr -d ' ')
   while IFS= read -r _pid; do
@@ -140,6 +155,10 @@ SHOW_MODE=0
 SIDE_TERMINALS=0
 NO_PROMPT=0
 OUTPUT_PARENT=""
+REMOTE_HOST="$CONF_REMOTE_HOST"
+REMOTE_USER="$CONF_REMOTE_USER"
+# Prefix for remote `bash -lc` commands; robots like Clearpath only source ROS in interactive shells.
+REMOTE_PRE="${CONF_REMOTE_SETUP:+source $CONF_REMOTE_SETUP; }"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -152,8 +171,10 @@ while [[ $# -gt 0 ]]; do
     --output-parent)   OUTPUT_PARENT="$2"; shift 2 ;;
     --side-terminals)  SIDE_TERMINALS=1; shift ;;
     --no-prompt)       NO_PROMPT=1; shift ;;
+    --remote-ip)       REMOTE_HOST="$2"; shift 2 ;;
+    --remote-user)     REMOTE_USER="$2"; shift 2 ;;
     -h|--help)
-      sed -n '10,23p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'
+      sed -n '10,29p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'
       trap - EXIT; exit 0 ;;
     *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
@@ -176,6 +197,7 @@ fi
 [[ "$RECORD_MODE"  -eq 1 ]] && echo "    Recording    : KPI topics → session bag"
 [[ "$PLOT_MODE"    -eq 1 ]] && echo "    Plots        : trigger-timeline PNGs"
 [[ -n "$OUTPUT_PARENT" ]]   && echo "    Output parent: $OUTPUT_PARENT"
+[[ -n "$REMOTE_HOST" ]]     && echo "    Remote target: ${REMOTE_USER}@${REMOTE_HOST} (launch via SSH)"
 echo "    HW monitoring: auto-detect (GPU/NPU enabled if valid drivers present)"
 echo "============================================================"
 echo ""
@@ -192,6 +214,53 @@ LAUNCH_LOG="$SESSION_DIR/${CONF_LOG_PREFIX}_launch.log"
 echo "  Session dir: $SESSION_DIR"
 echo ""
 
+# ── Remote target: align local DDS discovery with the robot's ROS_DOMAIN_ID ──
+# Mirrors monitor_stack.py's _build_remote_env() so `ros2 bag record` (run
+# locally below) can discover and subscribe to topics published on the
+# remote host. Only the LOCAL environment is modified here — the remote
+# host keeps whatever ROS 2 / Clearpath environment it already sources.
+REMOTE_ROS_DOMAIN_ID=""
+if [[ -n "$REMOTE_HOST" ]]; then
+  if [[ -n "$CONF_REMOTE_ROS_DOMAIN_ID" ]]; then
+    REMOTE_ROS_DOMAIN_ID="$CONF_REMOTE_ROS_DOMAIN_ID"
+    echo "  Remote ROS_DOMAIN_ID=${REMOTE_ROS_DOMAIN_ID} (explicit override)"
+  else
+    REMOTE_ROS_DOMAIN_ID=$(ssh -T -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no \
+      "${REMOTE_USER}@${REMOTE_HOST}" "bash -lc '${REMOTE_PRE}echo \${ROS_DOMAIN_ID:-not_set}'" 2>/dev/null || true)
+    if [[ "$REMOTE_ROS_DOMAIN_ID" =~ ^[0-9]+$ ]]; then
+      echo "  Detected remote ROS_DOMAIN_ID=${REMOTE_ROS_DOMAIN_ID} (local was ${ROS_DOMAIN_ID:-0})"
+    else
+      echo "  WARNING: could not auto-detect remote ROS_DOMAIN_ID over SSH (auth/connectivity?)." >&2
+      echo "           Falling back to local ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}. Use remote.ros_domain_id" >&2
+      echo "           in the YAML config, or --remote-user, to fix this." >&2
+      REMOTE_ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-0}"
+    fi
+  fi
+  export ROS_DOMAIN_ID="$REMOTE_ROS_DOMAIN_ID"
+  export ROS_LOCALHOST_ONLY=0
+  # CycloneDDS: explicit unicast peer + disable multicast (works across subnets)
+  export CYCLONEDDS_URI="<CycloneDDS><Domain><General><AllowMulticast>false</AllowMulticast></General><Discovery><Peers><Peer address=\"${REMOTE_HOST}\"/></Peers></Discovery></Domain></CycloneDDS>"
+  # FastDDS / rmw_fastrtps — unicast peer list
+  export ROS_STATIC_PEERS="$REMOTE_HOST"
+  # ROS_STATIC_PEERS only reaches the first few participant ports on the remote; list them all.
+  if [[ "${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}" == rmw_fastrtps* && -z "${FASTRTPS_DEFAULT_PROFILES_FILE:-}" ]]; then
+    export FASTRTPS_DEFAULT_PROFILES_FILE="$SESSION_DIR/fastdds_remote_peers.xml"
+    $_PYTHON "$SCRIPT_DIR/fastdds_peers.py" --host "$REMOTE_HOST" --domain "$ROS_DOMAIN_ID" \
+      --out "$FASTRTPS_DEFAULT_PROFILES_FILE" > /dev/null
+    echo "  Fast DDS peers: all participants on ${REMOTE_HOST} (${FASTRTPS_DEFAULT_PROFILES_FILE##*/})"
+  fi
+  # Remote resource monitoring runs this sampler on the robot (monitor_resources.py --remote-probe-path).
+  if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no "${REMOTE_USER}@${REMOTE_HOST}" \
+       'mkdir -p ~/ros-kpi/src' 2>/dev/null \
+     && scp -q -o BatchMode=yes -o StrictHostKeyChecking=no "$SCRIPT_DIR/_psutil_probe.py" \
+       "${REMOTE_USER}@${REMOTE_HOST}:ros-kpi/src/_psutil_probe.py" 2>/dev/null; then
+    echo "  Resource probe: copied to ${REMOTE_HOST}:~/ros-kpi/src/"
+  else
+    echo "  WARNING: could not copy _psutil_probe.py to ${REMOTE_HOST}; remote CPU/memory will be missing." >&2
+  fi
+  echo ""
+fi
+
 # ── Pre-run cleanup: kill any leftover processes from a previous run ──────────
 echo "[1/6] Pre-run cleanup..."
 _pkill_sweep -SIGINT
@@ -201,9 +270,21 @@ echo "  Pre-run cleanup done."
 echo ""
 
 # ── Process 1: application launch ────────────────────────────────────────────
-echo "[2/6] Launching ${CONF_SCENARIO} simulation..."
-# shellcheck disable=SC2086
-setsid nohup env ${CONF_LAUNCH_ENV} ${CONF_LAUNCH_CMD} > "$LAUNCH_LOG" 2>&1 &
+if [[ -n "$REMOTE_HOST" ]]; then
+  echo "[2/6] Launching ${CONF_SCENARIO} on ${REMOTE_USER}@${REMOTE_HOST} (SSH)..."
+  # -tt allocates a remote pty so that killing this local ssh client sends
+  # SIGHUP to the remote shell, which propagates to ros2 launch's children —
+  # the _pkill_sweep remote backstop above/below covers anything that survives.
+  # shellcheck disable=SC2029
+  setsid nohup ssh -tt -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
+    "${REMOTE_USER}@${REMOTE_HOST}" \
+    "bash -lc '${REMOTE_PRE}exec env ${CONF_LAUNCH_ENV} ${CONF_LAUNCH_CMD}'" \
+    > "$LAUNCH_LOG" 2>&1 &
+else
+  echo "[2/6] Launching ${CONF_SCENARIO} simulation..."
+  # shellcheck disable=SC2086
+  setsid nohup env ${CONF_LAUNCH_ENV} bash -c "$CONF_LAUNCH_CMD" > "$LAUNCH_LOG" 2>&1 &
+fi
 LAUNCH_PID=$!
 echo "  Launch PID : $LAUNCH_PID  (log: $LAUNCH_LOG)"
 
@@ -235,9 +316,15 @@ fi
 # GPU and NPU are enabled automatically by monitor_stack.py when the correct
 # drivers and tools are present (xe/qmassa, i915/qmassa, Intel NPU sysfs).
 echo "[3/6] Starting monitor stack..."
-MONITOR_ARGS=("--interval" "0.5" "--output-dir" "$SESSION_DIR" "--use-sim-time")
+MONITOR_ARGS=("--interval" "0.5" "--output-dir" "$SESSION_DIR")
 [[ "$CONF_GRAPH_ONLY" -eq 1 ]] && MONITOR_ARGS+=("--graph-only")
-[[ "$LAUNCH_PID" -gt 0 ]] && MONITOR_ARGS+=("--root-pid" "$LAUNCH_PID")
+if [[ -n "$REMOTE_HOST" ]]; then
+  MONITOR_ARGS+=("--remote-ip" "$REMOTE_HOST" "--remote-user" "$REMOTE_USER")
+  [[ -n "$REMOTE_ROS_DOMAIN_ID" ]] && MONITOR_ARGS+=("--ros-domain-id" "$REMOTE_ROS_DOMAIN_ID")
+  # --root-pid identifies the local process tree; meaningless for a remote launch.
+else
+  [[ "$LAUNCH_PID" -gt 0 ]] && MONITOR_ARGS+=("--root-pid" "$LAUNCH_PID")
+fi
 $_PYTHON "$SCRIPT_DIR/monitor_stack.py" "${MONITOR_ARGS[@]}" \
   > "$SESSION_DIR/monitor_stack.log" 2>&1 &
 MONITOR_PID=$!
@@ -315,7 +402,7 @@ while true; do
 
   # ── Task tracking (e.g. picknplace) ──────────────────────────────────────
   if [[ -n "$CONF_TASK_PATTERN" ]]; then
-    CURRENT_TASKS=$(grep -c "$CONF_TASK_PATTERN" "$LAUNCH_LOG" 2>/dev/null || true)
+    CURRENT_TASKS=$(grep -cE "$CONF_TASK_PATTERN" "$LAUNCH_LOG" 2>/dev/null || true)
     CURRENT_TASKS=$(( ${CURRENT_TASKS:-0} + 0 ))
     while [[ "$TASK_COUNT" -lt "$CURRENT_TASKS" ]]; do
       TASK_COUNT=$(( TASK_COUNT + 1 ))

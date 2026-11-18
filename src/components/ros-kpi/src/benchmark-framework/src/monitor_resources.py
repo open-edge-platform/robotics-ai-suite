@@ -896,9 +896,11 @@ def _read_sysfs_gpu(remote_ip: str | None = None, remote_user: str = 'ubuntu') -
         rc6_ms_per_s   – raw RC6 idle ms in the last second (for debugging)
         gt_count        – number of GTs found
     Returns an empty dict on any failure.
-    """
-    _CARD = '/sys/class/drm/card1'
 
+    Supports both sysfs layouts:
+        i915  card/gt/gtN/rc6_residency_ms, card/gt_{act,cur,max}_freq_mhz
+        xe    card/device/tileT/gtN/gtidle/idle_residency_ms, .../gtN/freq0/{act,cur,max}_freq
+    """
     def _ssh_read(paths: list) -> dict:
         """Read multiple sysfs files in one SSH call, return {path: value}."""
         remote_cmd = ' && '.join(f'echo {p}=$(cat {p} 2>/dev/null)' for p in paths)
@@ -925,41 +927,27 @@ def _read_sysfs_gpu(remote_ip: str | None = None, remote_user: str = 'ubuntu') -
 
     _read = _ssh_read if remote_ip else _local_read
 
-    # Discover GT count
-    if remote_ip:
-        try:
-            r = _ssh(remote_ip, remote_user,
-                     f'ls {_CARD}/gt/ 2>/dev/null | grep -c "^gt[0-9]"', timeout=8)
-            gt_count = int(r.stdout.strip() or '1')
-        except (subprocess.SubprocessError, OSError, ValueError):
-            gt_count = 1
-    else:
-        import glob
-        gt_count = len(glob.glob(f'{_CARD}/gt/gt*'))
-        if gt_count == 0:
-            gt_count = 1
+    layout = _gpu_sysfs_layout(remote_ip, remote_user)
+    if not layout:
+        return {}
+    idle_paths = layout['idle_paths']
+    freq_paths = layout['freq_paths']
+    gt_count = len(idle_paths)
 
-    rc6_paths = [f'{_CARD}/gt/gt{i}/rc6_residency_ms' for i in range(gt_count)]
-    freq_paths = [
-        f'{_CARD}/gt_act_freq_mhz',
-        f'{_CARD}/gt_cur_freq_mhz',
-        f'{_CARD}/gt_max_freq_mhz',
-    ]
-
-    # First RC6 sample
+    # First idle-residency sample
     t0 = time.monotonic()
-    s0 = _read(rc6_paths + freq_paths)
+    s0 = _read(idle_paths + freq_paths)
     time.sleep(1.0)
     t1 = time.monotonic()
-    s1 = _read(rc6_paths)
+    s1 = _read(idle_paths)
 
     elapsed_ms = (t1 - t0) * 1000.0
     if elapsed_ms < 1:
         return {}
 
-    # Average RC6 idle across all GTs
+    # Average idle residency across all GTs
     rc6_idle_ms = 0.0
-    for p in rc6_paths:
+    for p in idle_paths:
         try:
             rc6_idle_ms += float(s1.get(p, '0') or '0') - float(s0.get(p, '0') or '0')
         except ValueError:
@@ -975,14 +963,68 @@ def _read_sysfs_gpu(remote_ip: str | None = None, remote_user: str = 'ubuntu') -
         except ValueError:
             return 0
 
+    act, cur, mx = freq_paths
     return {
         'busy_pct':     busy_pct,
-        'act_freq_mhz': _int(f'{_CARD}/gt_act_freq_mhz'),
-        'cur_freq_mhz': _int(f'{_CARD}/gt_cur_freq_mhz'),
-        'max_freq_mhz': _int(f'{_CARD}/gt_max_freq_mhz'),
+        'act_freq_mhz': _int(act),
+        'cur_freq_mhz': _int(cur),
+        'max_freq_mhz': _int(mx),
         'rc6_ms_per_s': round(rc6_idle_ms, 1),
         'gt_count':     gt_count,
     }
+
+
+_GPU_LAYOUT_CACHE: dict = {}
+
+
+def _gpu_sysfs_layout(remote_ip: str | None = None, remote_user: str = 'ubuntu') -> dict:
+    """
+    Find the Intel GPU's DRM card and its idle-residency / frequency sysfs files.
+
+    Returns {'card', 'driver', 'idle_paths', 'freq_paths' (act, cur, max)} or {}
+    when no Intel GPU with GT sysfs is present. Cached per host.
+    """
+    key = remote_ip or ''
+    if key in _GPU_LAYOUT_CACHE:
+        return _GPU_LAYOUT_CACHE[key]
+
+    # First Intel (0x8086) primary card, then its GT directories in either layout.
+    probe = ('for c in /sys/class/drm/card[0-9]*; do case $c in *-*) continue;; esac; '
+             '[ "$(cat $c/device/vendor 2>/dev/null)" = 0x8086 ] || continue; '
+             'echo CARD=$c; ls -d $c/gt/gt[0-9]* $c/device/tile[0-9]*/gt[0-9]* 2>/dev/null; break; done')
+    try:
+        if remote_ip:
+            out = _ssh(remote_ip, remote_user, probe, timeout=8).stdout
+        else:
+            out = subprocess.run(['bash', '-c', probe], capture_output=True, text=True,
+                                 timeout=8, check=False).stdout
+    except (subprocess.SubprocessError, OSError):
+        out = ''
+
+    card, gts = '', []
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith('CARD='):
+            card = line[5:]
+        elif line:
+            gts.append(line)
+
+    layout: dict = {}
+    if card and gts:
+        if '/tile' in gts[0]:
+            layout = {
+                'card': card, 'driver': 'xe',
+                'idle_paths': [f'{g}/gtidle/idle_residency_ms' for g in gts],
+                'freq_paths': [f'{gts[0]}/freq0/{n}' for n in ('act_freq', 'cur_freq', 'max_freq')],
+            }
+        else:
+            layout = {
+                'card': card, 'driver': 'i915',
+                'idle_paths': [f'{g}/rc6_residency_ms' for g in gts],
+                'freq_paths': [f'{card}/gt_{n}_freq_mhz' for n in ('act', 'cur', 'max')],
+            }
+    _GPU_LAYOUT_CACHE[key] = layout
+    return layout
 
 
 def monitor_gpu(interval: float = 2.0,

@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
 <package format="3">
   <name>segmentation_realsense_tutorial</name>
   <version>2.0.0</version>
-  <description>Tutorial for Sematic Segmentation with Realsense Topic</description>
+  <description>Tutorial for semantic segmentation using a RealSense topic</description>
   <maintainer email="eci.maintainer@intel.com">ECI Maintainer</maintainer>
   <license>Apache-2.0</license>
 
@@ -18,6 +18,8 @@ SPDX-License-Identifier: Apache-2.0
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
+  <test_depend>python3-pytest</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

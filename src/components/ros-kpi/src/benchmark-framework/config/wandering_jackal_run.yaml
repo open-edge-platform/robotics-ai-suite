@@ -1,0 +1,189 @@
+# Copyright (C) 2026 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+#
+# Run profile for the `wandering` benchmark scenario on physical Clearpath
+# Robotics Jackal (J100) hardware with the onboard computer replaced by an
+# AAEON UP Nexus WCL Edge (Wildcat Lake) board, per the validated Blueprint:
+#   edge-ai-suites/robotics-ai-suite/docs/user-guide/hardware_blueprints/amr/clearpath-jackal.md
+#
+# This is a LIVE-ROBOT scenario, not a simulation or bag replay. Before
+# running, make sure:
+#   - The Jackal's Clearpath base services are already up and publishing TF,
+#     odometry, and the RealSense camera topics under the robot namespace
+#     (clearpath-platform.service, clearpath-sensors.service,
+#     clearpath-robot.service).
+#   - `wandering` (ros-*-wandering) is installed/built for this ROS 2 distro.
+#   - ROBOT_NAMESPACE below matches the `namespace` entry in your robot's
+#     /etc/clearpath/robot.yaml (default: /j100_0812).
+#
+# RUNNING FROM A SEPARATE SYSTEM: set `remote.host` below (or pass --remote-ip)
+# to the Jackal's onboard AAEON UP Nexus WCL Edge board's IP/hostname. This
+# tells benchmark_runner.sh to SSH in and run launch.cmd there, while this
+# script, its bag recording, and resource/graph monitoring all run on your
+# workstation instead. Leave `remote.host` empty (the default) to run this
+# whole script directly on the WCL Edge board instead. See the `remote:`
+# section below for SSH requirements and overrides.
+#
+# The scenario name is derived automatically from the ROS package in launch.cmd.
+#
+# For MCU-reported power/current telemetry on the J100_USER_CURRENT rail (where
+# the WCL board is powered) and per-side motor current, see
+# docs/JACKAL_POWER_MONITORING.md. Both topics are included in bag.topics below.
+#
+# Load with:
+#   uv run python src/benchmark_profiler.py --config config/wandering_jackal_run.yaml --show
+#
+# Use in bash run scripts:
+#   TOPICS=$(uv run python src/benchmark_profiler.py --config config/wandering_jackal_run.yaml --topics)
+#   LAUNCH=$(uv run python src/benchmark_profiler.py --config config/wandering_jackal_run.yaml --launch-cmd)
+#   SLEEP=$(uv run python src/benchmark_profiler.py  --config config/wandering_jackal_run.yaml --init-sleep)
+
+---
+launch:
+  # wandering_jackal.launch.py: depthimage_to_laserscan -> RTAB-Map SLAM ->
+  # Jackal Nav2 (ADBScanLayer) -> ADBSCAN perception -> wandering_app.
+  cmd: "ros2 launch wandering_bringup wandering_jackal.launch.py"
+
+  # Disable RViz by default — the robot's onboard compute typically has no
+  # attached display; visualize remotely instead if needed.
+  args: ["use_rviz:=false"]
+
+  # Set to match the `namespace` in /etc/clearpath/robot.yaml on your robot.
+  # Overrides the shell's ROBOT_NAMESPACE for the launched process only.
+  env:
+    ROBOT_NAMESPACE: "/j100_0812"
+
+  # Seconds to wait after launch before starting the benchmark. Real RTAB-Map
+  # SLAM + Nav2 + ADBSCAN startup on hardware is slower than the Gazebo sim
+  # profile (config/wandering_run.yaml uses 15s).
+  init_sleep: 30
+
+stop:
+  # grep pattern counted in the launch log to track goals (same wandering_app
+  # log line used by the simulation profile).
+  goal_pattern: "Goal was reached"
+  # Stop after this many goals (0 = run until --timeout or Ctrl-C).
+  goal_count: 0
+  # Hard stop after N seconds (0 = off). CLI --timeout overrides this.
+  timeout: 0
+  # Stop immediately when this literal string appears in the launch log.
+  done_pattern: ""
+  # Additional pattern counted for the run summary (informational only).
+  task_pattern: ""
+
+monitor:
+  # Set true to pass --graph-only to monitor_stack.py (skip resource monitors).
+  graph_only: false
+
+gazebo:
+  # No Gazebo on physical hardware.
+  press_play: false
+
+cleanup:
+  # pkill -f pattern used to sweep leftover processes before and after a run.
+  # Deliberately scoped to the wandering_bringup process tree only — unlike
+  # the simulation/bag-replay profiles, this must NOT match a bare "ros2 "
+  # pattern, which would also match the persistent Clearpath base services
+  # (clearpath-platform/clearpath-sensors/clearpath-robot) that are expected
+  # to keep running across benchmark runs.
+  sweep: "wandering_jackal|wandering_bringup|wandering_mapper|dep_rtabmap_jackal|dep_navigation_jackal|dep_adbscan_perception|rtabmap|nav2|adbscan_sensor_fusion|adbscan_ros2|depthimage_to_laserscan|rviz2"
+
+session:
+  # Subdirectory under monitoring_sessions/ where sessions are stored.
+  output_subdir: "wandering_jackal"
+  # Prefix for launch log and bag record log filenames.
+  log_prefix: "wandering_jackal"
+  # Path for the ros2 bag record stderr log.
+  record_log: "/tmp/wandering_jackal_record.log"
+
+remote:
+  # SSH host/IP of the Jackal's onboard AAEON UP Nexus WCL Edge board.
+  # Empty (default) = run launch.cmd locally, i.e. this script itself runs ON
+  # the WCL Edge. Set this to run the benchmark tool from a separate
+  # workstation instead: launch.cmd is started on this host over SSH, while
+  # bag recording and resource/graph monitoring run locally over the network.
+  # Overridden by --remote-ip.
+  host: ""
+
+  # SSH username. The Jackal Blueprint recommends creating an `administrator`
+  # account during OS install (see clearpath-jackal.md); change if different.
+  # Overridden by --remote-user.
+  user: "administrator"
+
+  # Explicit ROS_DOMAIN_ID to use for DDS discovery with the robot; leave
+  # empty to auto-detect it over SSH (reads the robot's own ROS_DOMAIN_ID,
+  # set via /etc/clearpath/setup.bash from robot.yaml's system.ros2.domain_id).
+  ros_domain_id: ""
+
+  # File sourced on the robot before each SSH command (domain detection and
+  # launch.cmd). Clearpath's ~/.bashrc returns early for non-interactive
+  # shells, so `bash -lc` over SSH otherwise has no ROS environment. Leave
+  # empty if the remote login shell already sources ROS.
+  setup: "/etc/clearpath/setup.bash"
+
+  # Requirements: SSH key-based (passwordless) auth to `user@host`, and the
+  # same RMW implementation (CycloneDDS or FastDDS) installed on this
+  # workstation as on the robot, plus ros-<distro>-clearpath-platform-msgs and
+  # ros-<distro>-clearpath-motor-msgs to record the MCU power/motor topics.
+  # The runner copies src/_psutil_probe.py to ~/ros-kpi/src/ on the robot
+  # and, for Fast DDS, writes a peer profile covering every participant on
+  # it. See the main README's "Remote Monitoring" section.
+
+bag:
+  # Topics recorded by `ros2 bag record` when --record is passed.
+  # Camera/depth topics assume the default ROBOT_NAMESPACE (/j100_0812) from
+  # the `env` section above — update the prefix below to match if you
+  # override it.
+  topics:
+    # ── Sensor inputs (Clearpath RealSense, namespaced) ─────────────────────
+    - /j100_0812/sensors/camera_0/depth/image
+    - /j100_0812/sensors/camera_0/depth/camera_info
+    - /j100_0812/sensors/camera_0/points
+    - /scan
+    - /j100_0812/tf
+    - /j100_0812/tf_static
+
+    # ── Perception ───────────────────────────────────────────────────────────
+    - /adbscan/points
+    - /obstacle_array
+
+    # ── Maps ─────────────────────────────────────────────────────────────────
+    - /map
+    - /map_updates
+
+    # ── Costmaps ─────────────────────────────────────────────────────────────
+    - /local_costmap/costmap_raw
+    - /local_costmap/published_footprint
+    - /global_costmap/costmap_raw
+    - /global_costmap/published_footprint
+
+    # ── Navigation commands ───────────────────────────────────────────────────
+    - /cmd_vel_nav
+    - /cmd_vel_smoothed
+    - /cmd_vel
+
+    # ── Planning ─────────────────────────────────────────────────────────────
+    - /plan
+    - /plan_smoothed
+    - /optimal_trajectory
+    - /transformed_global_plan
+
+    # ── Localization & goals ─────────────────────────────────────────────────
+    - /localization_pose
+    - /goal_pose
+    - /goal_reached
+
+    # ── Safety & behaviour ────────────────────────────────────────────────────
+    - /speed_limit
+    - /collision_monitor_state
+    - /behavior_tree_log
+
+    # ── Joint states (used for graph monitor / Level 1 KPI) ──────────────────
+    - /joint_states
+
+    # ── MCU power & motor telemetry (see docs/JACKAL_POWER_MONITORING.md) ────
+    # J100_USER_CURRENT * J100_MEASURED_12V estimates the WCL board's draw;
+    # DriveFeedback[i].current * J100_MEASURED_BATTERY estimates per-side
+    # motor power.
+    - /j100_0812/platform/mcu/status/power
+    - /j100_0812/platform/motors/feedback

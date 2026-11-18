@@ -42,8 +42,8 @@ RUN cd librealsense && git checkout development && \
 RUN	rm -rf /tmp/librealsense/
 
 WORKDIR /workspace/
-COPY src /workspace/src/
-COPY scripts /workspace/scripts/
-COPY config /workspace/config/
+COPY src/pyrealsense2-ai-demo/src /workspace/src/
+COPY src/pyrealsense2-ai-demo/scripts /workspace/scripts/
+COPY src/pyrealsense2-ai-demo/config /workspace/config/
 COPY videos /workspace/videos/
 RUN cd ./src/ && source /opt/intel/oneapi/setvars.sh && python3 ./setup.py build_ext --inplace
