@@ -7,14 +7,86 @@ If you want to manually setup Robotics AI Suite on your system, this step-by-ste
 Intel recommends a fresh installation of the Ubuntu distribution of the Linux OS
 for your target system.
 
-The manual installation only supports Install Canonical Ubuntu 24.04 LTS (Noble Numbat) Desktop on the supported
-platform. See [System Requirements](../system_requirements.md) for the supported
-configuration.
+Install Canonical Ubuntu 24.04 LTS (Noble Numbat) Desktop (recommended, ROS 2 Jazzy) or Ubuntu 22.04 LTS (Jammy Jellyfish) Desktop (ROS 2 Humble) on a supported
+platform. See [System Requirements](../system_requirements.md) for validated
+configurations.
 
 ## 2. Install and Configure ROS 2
 
-Follow the [ROS 2 Runtime](../../components/runtime/index.md) guide to install ROS 2
-Jazzy and configure the environment.
+Install ROS 2 from the official Open Robotics Debian repository before adding the Robotics AI Suite packages. For full upstream details and alternative install options, refer to the official Ubuntu (deb packages) guides for [ROS 2 Jazzy (Ubuntu 24.04)](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html) or [ROS 2 Humble (Ubuntu 22.04)](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html).
+
+1. Ensure a `UTF-8` locale and the Ubuntu `universe` repository are enabled:
+
+   ```bash
+   sudo apt update && sudo apt install -y locales software-properties-common curl
+   sudo locale-gen en_US en_US.UTF-8
+   sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+   export LANG=en_US.UTF-8
+   sudo add-apt-repository -y universe
+   ```
+
+2. Install the [`ros2-apt-source`](https://github.com/ros-infrastructure/ros-apt-source/) package to configure the ROS 2 APT repository and signing key for your Ubuntu release:
+
+   ```bash
+   export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}')
+   curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
+   sudo dpkg -i /tmp/ros2-apt-source.deb
+   ```
+
+3. Update APT caches, upgrade system packages, and install ROS 2 Desktop and development tools:
+
+   ::::{tab-set}
+   :::{tab-item} **Jazzy**
+   :sync: jazzy
+
+   > [!NOTE]
+   > On minimal Ubuntu 24.04 installations, verify `/etc/apt/sources.list.d/ubuntu.sources` includes `noble-updates` and `noble-backports` on the `Suites:` line before installing `ros-dev-tools`.
+
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   sudo apt install -y ros-jazzy-desktop ros-dev-tools
+   ```
+
+   :::
+   :::{tab-item} **Humble**
+   :sync: humble
+
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   sudo apt install -y ros-humble-desktop ros-dev-tools
+   ```
+
+   :::
+   ::::
+
+4. Source the ROS 2 environment and configure `~/.bashrc` with a unique `ROS_DOMAIN_ID` (integer `0`–`101`) to isolate DDS traffic on shared networks:
+
+   ::::{tab-set}
+   :::{tab-item} **Jazzy**
+   :sync: jazzy
+
+   ```bash
+   source /opt/ros/jazzy/setup.bash
+   echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+   echo "export ROS_DOMAIN_ID=42" >> ~/.bashrc
+   export ROS_DOMAIN_ID=42
+   ```
+
+   :::
+   :::{tab-item} **Humble**
+   :sync: humble
+
+   ```bash
+   source /opt/ros/humble/setup.bash
+   echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+   echo "export ROS_DOMAIN_ID=42" >> ~/.bashrc
+   export ROS_DOMAIN_ID=42
+   ```
+
+   :::
+   ::::
+
+   To verify your ROS 2 installation (`ros2 doctor` and publisher/subscriber check) or learn more about runtime configuration, see [ROS 2 Runtime](../../components/runtime/index.md#verifying-the-runtime).
 
 ## 3. Set up Robotics AI Suite, oneAPI, and Graphics APT Repositories
 
@@ -46,9 +118,9 @@ This section explains the procedure to configure the APT package manager to use 
    ```bash
    wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list > /dev/null
-   echo -e "Package: intel-oneapi-runtime-*\nPin: version 2026.1.*\nPin-Priority: 1001\n" | sudo tee /etc/apt/preferences.d/oneapi > /dev/null
-   echo -e "Package: intel-oneapi-compiler-*\nPin: version 2026.1.*\nPin-Priority: 1001\n" | sudo tee -a /etc/apt/preferences.d/oneapi > /dev/null
-   echo -e "Package: intel-oneapi-mkl-*\nPin: version 2026.1.*\nPin-Priority: 1001" | sudo tee -a /etc/apt/preferences.d/oneapi > /dev/null
+   echo -e "Package: intel-oneapi-runtime-*\nPin: version 2026*\nPin-Priority: 1001\n" | sudo tee /etc/apt/preferences.d/oneapi > /dev/null
+   echo -e "Package: intel-oneapi-compiler-*\nPin: version 2026*\nPin-Priority: 1001\n" | sudo tee -a /etc/apt/preferences.d/oneapi > /dev/null
+   echo -e "Package: intel-oneapi-mkl-*\nPin: version 2026*\nPin-Priority: 1001" | sudo tee -a /etc/apt/preferences.d/oneapi > /dev/null
    ```
 
 6. For the latest Intel graphics support, add the ``kobuk`` PPA. For Ubuntu 22, `kisak` is used:
@@ -68,6 +140,7 @@ This section explains the procedure to configure the APT package manager to use 
    sudo -E add-apt-repository -y ppa:kisak/kisak-mesa
    ```
    :::
+   ::::
 
 ## 4. Install OpenVINO™ Packages
 
@@ -79,14 +152,14 @@ The following steps will add the OpenVINO™ APT repository to your package mana
    wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/openvino-archive-keyring.gpg > /dev/null
    ```
 
-2. Add the APT package sources for OpenVINO™ 2025:
+2. Add the APT package sources for OpenVINO™:
 
    ::::{tab-set}
    :::{tab-item} **Jazzy**
    :sync: jazzy
 
    ```bash
-   echo "deb [signed-by=/usr/share/keyrings/openvino-archive-keyring.gpg] https://apt.repos.intel.com/openvino/2025 ubuntu24 main" | sudo tee /etc/apt/sources.list.d/intel-openvino-2025.list
+   echo "deb [signed-by=/usr/share/keyrings/openvino-archive-keyring.gpg] https://apt.repos.intel.com/openvino/2026 ubuntu24 main" | sudo tee /etc/apt/sources.list.d/intel-openvino-2026.list
    ```
 
    :::
@@ -102,18 +175,17 @@ The following steps will add the OpenVINO™ APT repository to your package mana
 
 3. Run the following commands to create the file ``/etc/apt/preferences.d/intel-openvino``.
 
-   This will pin the OpenVINO™ version to 2025.3.0. Earlier versions of OpenVINO™
-   might not support inferencing on the Intel NPU of Intel® Core™ Ultra processors.
+   This will pin the OpenVINO™ version to a validated configuration.
 
    ::::{tab-set}
    :::{tab-item} **Jazzy**
    :sync: jazzy
 
    ```bash
-   echo -e "\nPackage: openvino-libraries-dev\nPin: version 2025.3.0*\nPin-Priority: 1001" | sudo tee /etc/apt/preferences.d/intel-openvino
-   echo -e "\nPackage: openvino\nPin: version 2025.3.0*\nPin-Priority: 1001" | sudo tee -a /etc/apt/preferences.d/intel-openvino
-   echo -e "\nPackage: ros-jazzy-openvino-wrapper-lib\nPin: version 2025.3.0*\nPin-Priority: 1002" | sudo tee -a /etc/apt/preferences.d/intel-openvino
-   echo -e "\nPackage: ros-jazzy-openvino-node\nPin: version 2025.3.0*\nPin-Priority: 1002" | sudo tee -a /etc/apt/preferences.d/intel-openvino
+   echo -e "\nPackage: openvino-libraries-dev\nPin: version 2026.4.0*\nPin-Priority: 1001" | sudo tee /etc/apt/preferences.d/intel-openvino
+   echo -e "\nPackage: openvino\nPin: version 2026.4.0*\nPin-Priority: 1001" | sudo tee -a /etc/apt/preferences.d/intel-openvino
+   echo -e "\nPackage: ros-jazzy-openvino-wrapper-lib\nPin: version 2026.4.0*\nPin-Priority: 1002" | sudo tee -a /etc/apt/preferences.d/intel-openvino
+   echo -e "\nPackage: ros-jazzy-openvino-node\nPin: version 2026.4.0*\nPin-Priority: 1002" | sudo tee -a /etc/apt/preferences.d/intel-openvino
    ```
 
    :::
@@ -346,27 +418,27 @@ This section details steps to install Robotics AI Suite Deb packages.
    :::
    ::::
 
-3. Choose the Autonomous Mobile Robot Deb package to install.
+3. Choose the Robotics AI Suite Deb package to install.
 
    ::::{tab-set}
    :::{tab-item} **Jazzy**
    :sync: jazzy
 
    **ros-jazzy-robotics-sdk**
-      The standard version of the Autonomous Mobile Robot. This package includes almost everything except for a handful of tutorials and bag files.
+      The standard version of the Robotics AI Suite. This package includes almost everything except for a handful of tutorials and bag files.
 
    **ros-jazzy-robotics-sdk-complete**
-      The complete version of the Autonomous Mobile Robot. It includes everything in the standard package plus the excluded items. The complete SDK downloads approximately 20 GB of additional files.
+      The complete version of the Robotics AI Suite. It includes everything in the standard package plus the excluded items. The complete SDK downloads approximately 20 GB of additional files.
 
    :::
    :::{tab-item} **Humble**
    :sync: humble
 
    **ros-humble-robotics-sdk**
-      The standard version of the Autonomous Mobile Robot. This package includes almost everything except for a handful of tutorials and bag files.
+      The standard version of the Robotics AI Suite. This package includes almost everything except for a handful of tutorials and bag files.
 
    **ros-humble-robotics-sdk-complete**
-      The complete version of the Autonomous Mobile Robot. It includes everything in the standard package plus the excluded items. The complete SDK downloads approximately 20 GB of additional files.
+      The complete version of the Robotics AI Suite. It includes everything in the standard package plus the excluded items. The complete SDK downloads approximately 20 GB of additional files.
 
    :::
    ::::
