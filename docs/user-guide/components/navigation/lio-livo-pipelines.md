@@ -97,7 +97,7 @@ The odometry pipeline broadcasts the continuous, smooth spatial transformation f
 - **Transform**: `odom` $\rightarrow$ `base_link`
 - **Topic**: `/odom` (`nav_msgs/msg/Odometry`)
 
-For global navigation, the map-level offset (`map` $\rightarrow$ `odom`) is provided by a global SLAM system (such as [Collaborative Visual SLAM](../optimized_solutions/collaborative-slam.md)), a pre-built static map, or the [Robot Re-localization Package for ROS 2 Navigation](navigation-relocalization.md).
+For global navigation, the map-level offset (`map` $\rightarrow$ `odom`) is provided by a global SLAM system (such as [Collaborative Visual SLAM](collaborative-slam.md)), a pre-built static map, or the [Robot Re-localization Package for ROS 2 Navigation](navigation-relocalization.md).
 
 ### Dynamic Costmap Feeding
 

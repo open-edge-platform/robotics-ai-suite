@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # FastMapping Workshop
 
-This tutorial runs [FastMapping](../../optimized_solutions/run-fastmapping-algorithm.md) in a workshop. FastMapping builds a 3D voxel map and a 2D occupancy grid from depth images. The workshop replays the recorded depth bag from `ros-${ROS_DISTRO}-bagfile-spinning` (about 12 seconds), so no camera is needed.
+This tutorial runs [FastMapping](../../navigation/run-fastmapping-algorithm.md) in a workshop. FastMapping builds a 3D voxel map and a 2D occupancy grid from depth images. The workshop replays the recorded depth bag from `ros-${ROS_DISTRO}-bagfile-spinning` (about 12 seconds), so no camera is needed.
 
 ## Prerequisites
 

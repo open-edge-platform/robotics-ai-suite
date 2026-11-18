@@ -84,7 +84,7 @@ to install VTune™ Profiler by choosing one of the following two options:
 The example application from Autonomous Mobile Robot considered for the
 CPU and GPU profiling is the "Collaborative visual slam with
 fastmapping enabled" application from the
-[Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+[Collaborative Visual SLAM](../navigation/collaborative-slam.md)
 tutorial. The two CPU analyses types considered in this
 example are `CPU Hotspots` analysis and
 `CPU Microarchitecture Exploration` analysis. Furthermore, the GPU
@@ -109,7 +109,7 @@ The CPU Hotspots Analysis is carried out with the following parameters:
 
 1. Install the "Collaborative visual slam with fastmapping enabled"
    application from the
-   [Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+   [Collaborative Visual SLAM](../navigation/collaborative-slam.md)
    tutorial.
 
 2. Run the following command to source the ROS 2 setup files.
@@ -148,7 +148,7 @@ The CPU Hotspots Analysis is carried out with the following parameters:
 5. Run the following command in the terminal to start the CPU Hotspots
    analysis of the "Collaborative visual slam with fastmapping
    enabled" application from the
-   [Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+   [Collaborative Visual SLAM](../navigation/collaborative-slam.md)
    tutorial.
 
    ::::{tab-set}
@@ -192,7 +192,7 @@ browse to the directory `vtune_results_hotspots`, select the
 `vtune_results_hotspots.vtune` file and click on `open`. This will open
 the CPU Hotspots Analysis results for the "Collaborative visual slam
 with fastmapping enabled" application from the
-[Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+[Collaborative Visual SLAM](../navigation/collaborative-slam.md)
 tutorial which ran for 30 seconds.
 
 From the summary page, some of the CPU Hotspots Analysis details that
@@ -206,7 +206,7 @@ The following picture shows the most active functions in the
 application, the total CPU time it has run, and the percentage of CPU time
 it has utilized. For example, in this case, the "Collaborative visual slam
 with fastmapping enabled" application from the
-[Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+[Collaborative Visual SLAM](../navigation/collaborative-slam.md)
 tutorial shows that the function
 `fast_mapping::fast_mapping_module::octree_integrate` is the second most
 active function, consuming 7.8% of CPU time. The top running task is
@@ -257,7 +257,7 @@ parameters:
 
 1. Install the "Collaborative visual slam with fastmapping enabled"
    application from the
-   [Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+   [Collaborative Visual SLAM](../navigation/collaborative-slam.md)
    tutorial.
 
 2. Run the following command to source the ROS 2 setup files.
@@ -296,7 +296,7 @@ parameters:
 5. Run the following command in the terminal to start the CPU
    microarchitecture exploration of the "Collaborative visual slam
    with fastmapping enabled" application from the
-   [Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+   [Collaborative Visual SLAM](../navigation/collaborative-slam.md)
    tutorial.
 
    ::::{tab-set}
@@ -340,7 +340,7 @@ browse to the directory `vtune_results_uarch`, select the
 `vtune_results_uarch.vtune` file and click on `open`. This will open the
 CPU Microarchitecture Exploration results for the "Collaborative visual
 slam with fastmapping enabled" application from the
-[Collaborative Visual SLAM](../../components/optimized_solutions/collaborative-slam.md)
+[Collaborative Visual SLAM](../navigation/collaborative-slam.md)
 tutorial which ran for 30 seconds.
 
 From the summary page, some of the CPU Microarchitecture Exploration

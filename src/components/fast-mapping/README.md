@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 
 FastMapping is an optimized ROS 2 package for real-time 3D volumetric occupancy mapping from RGB-D camera streams, providing lower latency and reduced memory footprint compared to standard OctoMap implementations.
 
-For extended documentation, architecture details, and tutorials, refer to the [Robotics AI Suite FastMapping Guide](https://developer.robotics.intel.com/development-stack/components/optimized_solutions/run-fastmapping-algorithm/).
+For extended documentation, architecture details, and tutorials, refer to the [Robotics AI Suite FastMapping Guide](https://developer.robotics.intel.com/development-stack/components/navigation/run-fastmapping-algorithm/).
 
 ---
 

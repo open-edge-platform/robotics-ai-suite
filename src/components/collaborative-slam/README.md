@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Documentation
 
-Comprehensive documentation on this component is available here: [dev guide](https://developer.robotics.intel.com/development-stack/components/optimized_solutions/collaborative-slam/).
+Comprehensive documentation on this component is available here: [dev guide](https://developer.robotics.intel.com/development-stack/components/navigation/collaborative-slam/).
 
 ## Overview
 

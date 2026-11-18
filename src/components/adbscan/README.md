@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Documentation
 
-Comprehensive documentation on this component is available here: [dev guide](https://developer.robotics.intel.com/development-stack/components/optimized_solutions/adbscan-follow-me/)
+Comprehensive documentation on this component is available here: [dev guide](https://developer.robotics.intel.com/development-stack/components/navigation/adbscan-follow-me/)
 
 ## Overview
 
@@ -485,7 +485,7 @@ Detailed documentation, launch options, and hardware deployment guides are organ
 #### Algorithm & Performance
 
 - [docs/IA-optimized-adbscan-algorithm.md](docs/IA-optimized-adbscan-algorithm.md) — Mathematical formulation of range-adaptive clustering and Intel Architecture CPU vectorization optimizations.
-- [Online Developer Guide](https://developer.robotics.intel.com/development-stack/components/optimized_solutions/adbscan-follow-me/) — Official Intel Edge AI Suites component documentation.
+- [Online Developer Guide](https://developer.robotics.intel.com/development-stack/components/navigation/adbscan-follow-me/) — Official Intel Edge AI Suites component documentation.
 
 ## Try It in a Canonical Workshop
 

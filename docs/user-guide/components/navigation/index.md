@@ -110,7 +110,7 @@ Direct 6-DoF state estimation using FAST-LIO2, FAST-LIVO2, and Point-LIO on Inte
 :::
 
 :::{grid-item-card} **Collaborative Visual SLAM**
-:link: ../optimized_solutions/collaborative-slam
+:link: collaborative-slam
 :link-type: doc
 :link-alt: clickable cards
 
@@ -118,7 +118,7 @@ Multi-robot mapping and map merging accelerated with AVX2 and Level-Zero compute
 :::
 
 :::{grid-item-card} **FastMapping Algorithm**
-:link: ../optimized_solutions/run-fastmapping-algorithm
+:link: run-fastmapping-algorithm
 :link-type: doc
 :link-alt: clickable cards
 
@@ -126,7 +126,7 @@ Real-time 3D OctoMap voxel mapping from RealSense depth cameras for multi-level 
 :::
 
 :::{grid-item-card} **ADBSCAN Follow-me**
-:link: ../optimized_solutions/adbscan-follow-me
+:link: adbscan-follow-me
 :link-type: doc
 :link-alt: clickable cards
 
@@ -179,9 +179,9 @@ The following table indexes navigation packages, tutorials, and end-to-end refer
 | **Robot Re-localization** | Localization Recovery | Low-memory candidate pose scoring, recovery behavior | [Robot Re-localization Package for ROS 2 Navigation](navigation-relocalization.md) |
 | **Dynamic Obstacle Avoidance** | Costmaps / Perception | Adaptive DBSCAN (`nav2_adbscan_layer`), RealSense, LiDAR | [Dynamic Obstacle Avoidance and Costmap Layers](dynamic-obstacle-avoidance.md) |
 | **LIO & LIVO Pipelines** | Odometry / State Estimation | FAST-LIO2, FAST-LIVO2, Point-LIO, Livox Mid-360, IMU | [LiDAR and Visual Odometry Pipelines (LIO & LIVO)](lio-livo-pipelines.md) |
-| **Collaborative Visual SLAM** | Mapping / SLAM | Multi-robot map merging, SSE/AVX2/Level-Zero optimization | [Collaborative Visual SLAM](../optimized_solutions/collaborative-slam.md) |
-| **FastMapping Algorithm** | 3D Voxel Mapping | OctoMap 3D voxel generation from RealSense depth cameras | [FastMapping Algorithm](../optimized_solutions/run-fastmapping-algorithm.md) |
-| **ADBSCAN Follow-me** | Tracking / Perception | Adaptive point cloud clustering, person tracking and following | [ADBSCAN Follow-me](../optimized_solutions/adbscan-follow-me.md) |
+| **Collaborative Visual SLAM** | Mapping / SLAM | Multi-robot map merging, SSE/AVX2/Level-Zero optimization | [Collaborative Visual SLAM](collaborative-slam.md) |
+| **FastMapping Algorithm** | 3D Voxel Mapping | OctoMap 3D voxel generation from RealSense depth cameras | [FastMapping Algorithm](run-fastmapping-algorithm.md) |
+| **ADBSCAN Follow-me** | Tracking / Perception | Adaptive point cloud clustering, person tracking and following | [ADBSCAN Follow-me](adbscan-follow-me.md) |
 | **3D Groundfloor Segmentation** | Traversability Analysis | Normal estimation and plane fitting for RealSense/LiDAR | [3D Pointcloud Groundfloor Segmentation for RealSense Camera and 3D LiDAR](../sensors/reference_applications/pointcloud-groundfloor-segmentation.md) |
 | **FAST-LIO2 Sample Pipeline** | LIO Reference | Colcon build, patch suite, Livox Mid-360, profiling | [LIO SLAM: FAST-LIO2](../../software_references/humanoid/sample_pipelines/fast_lio2_demo.md) |
 | **FAST-LIVO2 Sample Pipeline** | LIVO Reference | Direct visual-inertial-LiDAR fusion, NTU VIRAL validation | [LIVO SLAM: FAST-LIVO2](../../software_references/humanoid/sample_pipelines/fast_livo2_demo.md) |
@@ -199,7 +199,7 @@ its-path-planner-plugin
 navigation-relocalization
 dynamic-obstacle-avoidance
 lio-livo-pipelines
-Collaborative Visual SLAM <../optimized_solutions/collaborative-slam>
-FastMapping Algorithm <../optimized_solutions/run-fastmapping-algorithm>
-ADBSCAN Follow-me <../optimized_solutions/adbscan-follow-me>
+Collaborative Visual SLAM <collaborative-slam>
+FastMapping Algorithm <run-fastmapping-algorithm>
+ADBSCAN Follow-me <adbscan-follow-me>
 :::

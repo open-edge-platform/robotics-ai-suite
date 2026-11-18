@@ -60,7 +60,7 @@ function stageSphinxHtml() {
   // Legacy ai-suite-robotics.html redirects to canonical /development-stack/ai-suite-robotics/
   fs.writeFileSync(path.join(dest, "ai-suite-robotics.html"), makeRedirectHtml(canonicalHomeUrl));
 
-  // Legacy components/optimized_solutions/ hub redirects to Navigation & SLAM
+  // Legacy components/optimized_solutions/ hub and moved component pages
   const legacyOptimizedDir = path.join(dest, "components", "optimized_solutions");
   fs.mkdirSync(legacyOptimizedDir, { recursive: true });
   const navHubUrl = `${baseUrl}${ROUTE_SUBPATH}/components/navigation/`;
@@ -69,6 +69,26 @@ function stageSphinxHtml() {
     path.join(dest, "components", "optimized_solutions.html"),
     makeRedirectHtml(navHubUrl),
   );
+
+  const legacyOptimizedMoves = {
+    "adbscan-follow-me": "components/navigation/adbscan-follow-me/",
+    "collaborative-slam": "components/navigation/collaborative-slam/",
+    "run-fastmapping-algorithm": "components/navigation/run-fastmapping-algorithm/",
+    "libflann-oneapi": "components/sensors/libflann-oneapi/",
+    "libpcl-oneapi": "components/sensors/libpcl-oneapi/",
+    "orb-extractor": "components/sensors/orb-extractor/",
+  };
+
+  for (const [slug, newSubpath] of Object.entries(legacyOptimizedMoves)) {
+    const targetUrl = `${baseUrl}${ROUTE_SUBPATH}/${newSubpath}`;
+    const slugDir = path.join(legacyOptimizedDir, slug);
+    fs.mkdirSync(slugDir, { recursive: true });
+    fs.writeFileSync(path.join(slugDir, "index.html"), makeRedirectHtml(targetUrl));
+    fs.writeFileSync(
+      path.join(legacyOptimizedDir, `${slug}.html`),
+      makeRedirectHtml(targetUrl),
+    );
+  }
 
   // Create backwards-compatible .html redirects for any subdirectory containing index.html
   function createHtmlRedirects(dir, relPath = "") {

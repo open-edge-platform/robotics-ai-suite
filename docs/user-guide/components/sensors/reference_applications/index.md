@@ -22,7 +22,7 @@ Process 3D point cloud data to segment ground surfaces and detect traversable re
 :::
 
 :::{grid-item-card} **PCL oneAPI Component**
-:link: ../../optimized_solutions/libpcl-oneapi
+:link: ../libpcl-oneapi
 :link-type: doc
 :link-alt: clickable cards
 
@@ -30,7 +30,7 @@ Accelerate point cloud filtering, features, segmentation, and registration on In
 :::
 
 :::{grid-item-card} **FLANN oneAPI Component**
-:link: ../../optimized_solutions/libflann-oneapi
+:link: ../libflann-oneapi
 :link-type: doc
 :link-alt: clickable cards
 
@@ -38,7 +38,7 @@ Accelerate 3D KD-Tree nearest-neighbor and radius spatial indexing with Intel on
 :::
 
 :::{grid-item-card} **GPU ORB Extractor**
-:link: ../../optimized_solutions/orb-extractor
+:link: ../orb-extractor
 :link-type: doc
 :link-alt: clickable cards
 
@@ -54,7 +54,7 @@ Extract Visual SLAM keypoints and descriptors with Intel GPU acceleration.
 
 RealSense Camera with ROS 2 <realsense-ros2>
 3D Pointcloud Groundfloor Segmentation <pointcloud-groundfloor-segmentation>
-PCL oneAPI Component <../../optimized_solutions/libpcl-oneapi>
-FLANN oneAPI Component <../../optimized_solutions/libflann-oneapi>
-GPU ORB Extractor <../../optimized_solutions/orb-extractor>
+PCL oneAPI Component <../libpcl-oneapi>
+FLANN oneAPI Component <../libflann-oneapi>
+GPU ORB Extractor <../orb-extractor>
 :::

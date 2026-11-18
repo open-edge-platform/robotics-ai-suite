@@ -4,7 +4,7 @@ In dynamic industrial, warehouse, and service environments, mobile robots must h
 
 The Robotics AI Suite addresses dynamic obstacle avoidance by combining high-speed spatial clustering algorithms, 3D volumetric voxel mapping, and adaptive costmap plugins integrated directly into the Nav2 costmap pipeline.
 
-For practical application examples, see [ADBSCAN Follow-me](../optimized_solutions/adbscan-follow-me.md), [FastMapping Algorithm](../optimized_solutions/run-fastmapping-algorithm.md), and [3D Pointcloud Groundfloor Segmentation for RealSense Camera and 3D LiDAR](../sensors/reference_applications/pointcloud-groundfloor-segmentation.md).
+For practical application examples, see [ADBSCAN Follow-me](adbscan-follow-me.md), [FastMapping Algorithm](run-fastmapping-algorithm.md), and [3D Pointcloud Groundfloor Segmentation for RealSense Camera and 3D LiDAR](../sensors/reference_applications/pointcloud-groundfloor-segmentation.md).
 
 
 ## Architecture Overview
@@ -156,7 +156,7 @@ To avoid oscillations when navigating around dynamic obstacles, configure the co
 ## Related Documentation
 
 - [ROS 2 Nav2 Core Integration](nav2-integration.md): Core Nav2 server configurations, lifecycle, and behavior trees.
-- [ADBSCAN Follow-me](../optimized_solutions/adbscan-follow-me.md): Person following and dynamic cluster detection tutorial.
-- [FastMapping Algorithm](../optimized_solutions/run-fastmapping-algorithm.md): 3D voxel map generation from RealSense depth cameras.
+- [ADBSCAN Follow-me](adbscan-follow-me.md): Person following and dynamic cluster detection tutorial.
+- [FastMapping Algorithm](run-fastmapping-algorithm.md): 3D voxel map generation from RealSense depth cameras.
 - [3D Pointcloud Groundfloor Segmentation for RealSense Camera and 3D LiDAR](../sensors/reference_applications/pointcloud-groundfloor-segmentation.md): Classifying point clouds into ground surfaces and obstacles.
 - [Simulating `wandering` in Gazebo](../../software_references/amr/simulation/wandering_sim.md): Full autonomous exploration pipeline with ADBScan costmap integration.

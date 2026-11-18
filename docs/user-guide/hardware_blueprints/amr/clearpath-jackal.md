@@ -536,7 +536,7 @@ Follow the [Wandering deployment tutorial](../../software_references/amr/deploym
 
 ## Follow-me Tutorials
 
-Use the shared [ADBSCAN Follow-me](../../components/optimized_solutions/adbscan-follow-me.md) guide for the supported simulation and deployment workflows.
+Use the shared [ADBSCAN Follow-me](../../components/navigation/adbscan-follow-me.md) guide for the supported simulation and deployment workflows.
 
 ## References
 

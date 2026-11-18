@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # fast-mapping
 
-[FastMapping](https://developer.robotics.intel.com/development-stack/components/optimized_solutions/run-fastmapping-algorithm/index.html) builds a 3D voxel map and a 2D occupancy grid from depth images. The workshop replays the recorded bag shipped in `ros-${ROS_DISTRO}-bagfile-spinning` (about 12 s), so no camera is needed.
+[FastMapping](https://developer.robotics.intel.com/development-stack/components/navigation/run-fastmapping-algorithm/index.html) builds a 3D voxel map and a 2D occupancy grid from depth images. The workshop replays the recorded bag shipped in `ros-${ROS_DISTRO}-bagfile-spinning` (about 12 s), so no camera is needed.
 
 - Definitions: [fast-mapping.yaml](.workshop/fast-mapping.yaml) (Jazzy), [fast-mapping-humble.yaml](.workshop/fast-mapping-humble.yaml) (Humble)
 - Packages: [apt-packages.txt](apt-packages.txt)

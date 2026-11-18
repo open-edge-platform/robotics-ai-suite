@@ -78,7 +78,7 @@ flowchart TD
 
 Nav2 uses a modular plugin architecture to construct costmaps by stacking individual layers:
 
-1. **Static Layer (`nav2_costmap_2d::StaticLayer`)**: Ingests pre-built 2D occupancy grid maps published by the map server or SLAM pipelines (such as [Collaborative Visual SLAM](../optimized_solutions/collaborative-slam.md) or RTAB-Map).
+1. **Static Layer (`nav2_costmap_2d::StaticLayer`)**: Ingests pre-built 2D occupancy grid maps published by the map server or SLAM pipelines (such as [Collaborative Visual SLAM](collaborative-slam.md) or RTAB-Map).
 2. **Obstacle Layer / Voxel Layer (`nav2_costmap_2d::ObstacleLayer` / `VoxelLayer`)**: Incorporates real-time 2D planar LiDAR scans or 3D depth point clouds to detect dynamic objects within sensor range.
 3. **ADBScan Layer (`nav2_adbscan_layer`)**: Clusters 3D point cloud measurements into bounding volumes to track moving pedestrians and dynamic clutter. For implementation details, see [Dynamic Obstacle Avoidance and Costmap Layers](dynamic-obstacle-avoidance.md).
 4. **Traversability Layer**: Incorporates ground segmentation from [3D Pointcloud Groundfloor Segmentation for RealSense Camera and 3D LiDAR](../sensors/reference_applications/pointcloud-groundfloor-segmentation.md) to separate navigable ground planes from obstacles and steep drops.

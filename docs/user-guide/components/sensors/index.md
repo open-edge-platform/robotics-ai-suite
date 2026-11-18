@@ -55,7 +55,7 @@ Process 3D point cloud data to segment ground surfaces and detect traversable re
 :::
 
 :::{grid-item-card} **PCL oneAPI Component**
-:link: ../optimized_solutions/libpcl-oneapi
+:link: libpcl-oneapi
 :link-type: doc
 :link-alt: clickable cards
 
@@ -63,7 +63,7 @@ Accelerate point cloud filtering, features, segmentation, and registration on In
 :::
 
 :::{grid-item-card} **FLANN oneAPI Component**
-:link: ../optimized_solutions/libflann-oneapi
+:link: libflann-oneapi
 :link-type: doc
 :link-alt: clickable cards
 
@@ -71,7 +71,7 @@ Accelerate 3D KD-Tree nearest-neighbor and radius spatial indexing with Intel on
 :::
 
 :::{grid-item-card} **GPU ORB Extractor**
-:link: ../optimized_solutions/orb-extractor
+:link: orb-extractor
 :link-type: doc
 :link-alt: clickable cards
 

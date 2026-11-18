@@ -162,7 +162,7 @@ Simulate dual-arm manipulation and ACT imitation learning with OCS2 MPC in the M
 :::
 
 :::{grid-item-card} **ADBSCAN Follow-me Simulation**
-:link: ../optimized_solutions/adbscan-follow-me
+:link: ../navigation/adbscan-follow-me
 :link-type: doc
 :link-alt: clickable cards
 

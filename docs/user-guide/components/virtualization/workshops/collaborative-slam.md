@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # Collaborative SLAM Workshop
 
-This tutorial runs the [Collaborative SLAM](../../optimized_solutions/collaborative-slam.md) multi-camera tutorial in a workshop. Collaborative SLAM is a visual SLAM system in which several trackers, one per camera or robot, build maps and share them through a server. The workshop runs two trackers, one for each camera of a recorded two-camera bag, with ORB feature extraction on the Intel® GPU through Level Zero (SYCL). A UKF (`robot_localization`) fuses both trackers into one robot pose.
+This tutorial runs the [Collaborative SLAM](../../navigation/collaborative-slam.md) multi-camera tutorial in a workshop. Collaborative SLAM is a visual SLAM system in which several trackers, one per camera or robot, build maps and share them through a server. The workshop runs two trackers, one for each camera of a recorded two-camera bag, with ORB feature extraction on the Intel® GPU through Level Zero (SYCL). A UKF (`robot_localization`) fuses both trackers into one robot pose.
 
 ## Prerequisites
 

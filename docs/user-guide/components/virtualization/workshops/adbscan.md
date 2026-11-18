@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # ADBSCAN Workshop
 
-This tutorial runs [ADBSCAN](../../optimized_solutions/adbscan-follow-me.md) obstacle clustering in a workshop. ADBSCAN clusters 2D laser scans or 3D point clouds into obstacles, and publishes them on `/obstacle_array` (`nav2_dynamic_msgs/ObstacleArray`) and `/marker_array`. The workshop runs `adbscan_sub` on the recorded bag from `ros-${ROS_DISTRO}-bagfile-laser-pointcloud` (about 18 seconds of `/scan`, `/camera/depth/color/points` and `/camera/color/image_raw`), so no sensor is needed.
+This tutorial runs [ADBSCAN](../../navigation/adbscan-follow-me.md) obstacle clustering in a workshop. ADBSCAN clusters 2D laser scans or 3D point clouds into obstacles, and publishes them on `/obstacle_array` (`nav2_dynamic_msgs/ObstacleArray`) and `/marker_array`. The workshop runs `adbscan_sub` on the recorded bag from `ros-${ROS_DISTRO}-bagfile-laser-pointcloud` (about 18 seconds of `/scan`, `/camera/depth/color/points` and `/camera/color/image_raw`), so no sensor is needed.
 
 ## Prerequisites
 
