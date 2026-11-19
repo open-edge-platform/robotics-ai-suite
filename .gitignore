@@ -154,6 +154,7 @@ docs/website/.serve.lock
 
 # Sphinx "Development Stack" build output and venv
 docs/out/
+docs/user-guide/switcher_data.txt
 docs/venv_*/
 
 # Custom

@@ -41,14 +41,15 @@ This directory contains the GitHub Actions workflows for continuous integration,
 - **Trigger Events**:
   - `pull_request`: On `opened`, `synchronize`, `reopened`, and `closed` events.
   - `push`: Direct pushes to the `main` branch.
-  - `workflow_dispatch`: Manual execution (unfiltered; use it to force a rebuild).
+  - `workflow_dispatch`: Manual execution (unfiltered; use it to force a rebuild). Set the optional `release_branch` input (e.g. `release-2026.3.0`) to publish that branch as a versioned snapshot; run it from `main` so OIDC credentials match production deploys.
   - `pull_request` and `push` only run when `docs/**`, the root `Makefile`, or this workflow file change. Changes only under `src/` do not rebuild or deploy the site.
-- **Concurrency**: Grouped by workflow name and PR number or git ref (`cancel-in-progress: true`).
+- **Concurrency**: Grouped by workflow name and PR number, release branch, or git ref (`cancel-in-progress: true`). The `deploy` job shares a non-cancelling group so `switcher.json` updates never race.
+- **Versioning**: The Development Stack (Sphinx) shows a version drop-down populated from `/switcher.json`. `main` is published as `dev` at `/dev/`; a release branch `release-X.Y[.Z]` is published as `X.Y` at `/X.Y/`. Each deploy adds or refreshes its own entry in the switcher (`dev` first, then releases newest first). Only release branches containing `docs/website` can be published.
 - **Key Jobs**:
   1. `build`:
      - Checks out the repository.
     - Sets up Node.js 22.12.0 with npm caching via [docs/website/package.json](../../docs/website/package.json).
-     - Builds the Sphinx documentation and Docusaurus static site into the build output directory with the appropriate `BASE_URL` (`/pr/<number>/` for PRs or `/` for production).
+     - Builds the Sphinx documentation and Docusaurus static site into the build output directory with the appropriate `BASE_URL` (`/pr/<number>/` for PRs, `/X.Y/` for release branches, or `/dev/` for `main`), with the version switcher enabled.
      - Installs Chromium via Playwright and executes website integration tests (`make test-website`).
      - Verifies route generation, asset paths, and sitemaps for pull request previews.
      - Uploads the built website as an artifact.
@@ -56,7 +57,8 @@ This directory contains the GitHub Actions workflows for continuous integration,
      - Runs when a pull request is `closed`. Performs no privileged work; its completion triggers preview cleanup in [deploy-pr-preview.yaml](deploy-pr-preview.yaml).
   3. `deploy`:
      - Runs only for `push` and `workflow_dispatch` on `main`.
-     - Deploys the built site artifact to AWS S3 using OIDC role assumption, syncing to the root bucket destination (excluding `pr/*`) and invalidating the full CloudFront cache.
+     - Deploys the built site artifact to AWS S3 using OIDC role assumption. Syncs to the version's prefix (`dev/` or `X.Y/`) and invalidates that path in CloudFront.
+     - Merges the deployed version into `switcher.json`.
 
 #### [.github/workflows/deploy-pr-preview.yaml](deploy-pr-preview.yaml)
 

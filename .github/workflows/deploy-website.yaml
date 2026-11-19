@@ -16,15 +16,25 @@ on:  # yamllint disable-line rule:truthy
     branches: [main]
     paths: *website-paths
   workflow_dispatch:
+    inputs:
+      release_branch:
+        description: >-
+          Release branch to publish as a selectable documentation version
+          (e.g. release-2026.3.0). Leave empty to publish main.
+        required: false
+        default: ''
+        type: string
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || inputs.release_branch || github.ref }}
   cancel-in-progress: true
 
 env:
   PROD_ROLE: arn:aws:iam::153402917730:role/robotics-ai-suite
   PROD_BUCKET: s3://intel-robotics-documentation
   CF_DISTRO: E2MELGJBQJ2G04
+  DOCS_URL: https://developer.robotics.intel.com
+  SWITCHER_PATH: switcher.json
 
 permissions:
   contents: read
@@ -33,12 +43,42 @@ jobs:
   build:
     if: github.event_name != 'pull_request' || github.event.action != 'closed'
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      base_url: ${{ steps.version.outputs.base_url }}
     steps:
+      - name: Resolve documentation version
+        id: version
+        env:
+          RELEASE_BRANCH: ${{ inputs.release_branch }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [[ -n "$RELEASE_BRANCH" ]]; then
+            if [[ ! "$RELEASE_BRANCH" =~ ^release-([0-9]+\.[0-9]+)(\.[0-9]+)?$ ]]; then
+              echo "::error::Invalid release branch: $RELEASE_BRANCH (expected release-X.Y[.Z])"
+              exit 1
+            fi
+            version="${BASH_REMATCH[1]}"
+            base_url="/${version}/"
+          else
+            version=dev
+            base_url="${PR_NUMBER:+/pr/${PR_NUMBER}}/"
+            [[ "$base_url" != / ]] || base_url=/dev/
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "base_url=${base_url}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          ref: ${{ inputs.release_branch }}
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Enable version switcher
+        env:
+          DOCS_VERSION: ${{ steps.version.outputs.version }}
+        run: printf '%s\n%s\n' "$DOCS_URL" "$DOCS_VERSION" > docs/user-guide/switcher_data.txt
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
@@ -54,9 +94,17 @@ jobs:
       - name: Build Sphinx and Docusaurus
         working-directory: docs/website
         env:
-          BASE_URL: ${{ github.event_name == 'pull_request' && format('/pr/{0}/', github.event.number) || '/' }}
+          BASE_URL: ${{ steps.version.outputs.base_url }}
           HF_ORG: ${{ vars.HF_ORG }}
         run: npm run build
+
+      # Release branches may hardcode a different switcher URL in conf.py.
+      - name: Point version switcher at site
+        working-directory: docs/website/build
+        run: |
+          key='DOCUMENTATION_OPTIONS.theme_switcher_json_url ='
+          grep -rlZF "$key" development-stack \
+            | xargs -0 -r sed -i "s|${key}.*;\$|${key} '${DOCS_URL}/${SWITCHER_PATH}';|"
 
       - name: Install browsers for website tests
         working-directory: docs/website
@@ -64,7 +112,7 @@ jobs:
 
       - name: Test website
         env:
-          BASE_URL: ${{ github.event_name == 'pull_request' && format('/pr/{0}/', github.event.number) || '/' }}
+          BASE_URL: ${{ steps.version.outputs.base_url }}
           REQUIRE_WEBKIT: '1'
         run: make test-website
 
@@ -111,6 +159,10 @@ jobs:
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # Serialize read-modify-write of the shared switcher.json across versions.
+    concurrency:
+      group: deploy-website-prod
+      cancel-in-progress: false
     permissions:
       id-token: write
       contents: read
@@ -128,8 +180,31 @@ jobs:
           role-session-name: Github
           aws-region: us-east-1
 
-      - name: Deploy to root
+      - name: Deploy website
+        env:
+          BASE_URL: ${{ needs.build.outputs.base_url }}
         run: |
-          aws s3 sync site-build/ "$PROD_BUCKET" --delete --exclude "pr/*"
-          aws cloudfront create-invalidation --distribution-id "$CF_DISTRO" --paths "/*"
+          aws s3 sync site-build/ "${PROD_BUCKET}${BASE_URL}" --delete
+          aws cloudfront create-invalidation --distribution-id "$CF_DISTRO" --paths "${BASE_URL}*"
+
+      - name: Update version switcher
+        env:
+          DOCS_VERSION: ${{ needs.build.outputs.version }}
+          BASE_URL: ${{ needs.build.outputs.base_url }}
+        run: |
+          if aws s3 ls "${PROD_BUCKET}/${SWITCHER_PATH}" > /dev/null; then
+            aws s3 cp "${PROD_BUCKET}/${SWITCHER_PATH}" switcher.json
+          else
+            echo '[]' > switcher.json
+          fi
+          # Replace this version's entry; order: dev first, then releases newest first.
+          jq --arg v "$DOCS_VERSION" --arg url "${DOCS_URL}${BASE_URL}development-stack/" '
+            map(select(.version != $v)) + [{name: $v, version: $v, url: $url}]
+            | sort_by(if .version == "dev" then [infinite] else .version | split(".") | map(tonumber) end)
+            | reverse
+          ' switcher.json > switcher.new.json
+          cat switcher.new.json
+          aws s3 cp switcher.new.json "${PROD_BUCKET}/${SWITCHER_PATH}" \
+            --content-type application/json --cache-control max-age=300
+          aws cloudfront create-invalidation --distribution-id "$CF_DISTRO" --paths "/${SWITCHER_PATH}"
 

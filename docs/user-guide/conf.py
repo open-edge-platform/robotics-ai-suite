@@ -166,10 +166,9 @@ switcher_data_file = os.path.dirname(os.path.abspath(__file__)) + "/switcher_dat
 if os.path.isfile(switcher_data_file):
     with open(switcher_data_file) as file:
         lines = [line.rstrip() for line in file]
-    # Switcher URL needs to exist prior to building, so hardcode now and replace later
     html_theme_options_append = {
         "switcher": {
-            "json_url": "https://docs.openedgeplatform.intel.com/theme/switcher.json",
+            "json_url": f"{lines[0]}/switcher.json",
             "version_match": f"{lines[1].split()[0]}",
         },
         "navbar_start": ["navbar-logo", "version-switcher"],
