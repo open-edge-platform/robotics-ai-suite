@@ -59,7 +59,7 @@ First, clone this deployment folder with all submodules:
 ```bash
 # Clone the robotics-ai-suite repository (if not already done)
 cd ~
-git clone https://github.com/open-edge-platform/robotics-ai-suite.git -b main
+git clone https://github.com/open-edge-platform/robotics-ai-suite.git --b release-2026.3.0
 
 # Navigate to the deployment folder
 cd ~/robotics-ai-suite/src/pipelines/openclaw-agenticros-demo
