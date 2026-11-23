@@ -39,7 +39,7 @@ Visit the Canonical Ubuntu website to see the detailed installation instructions
 
    ![Installer](../../images/install/installer_1.png)
 
-4. Select an installation profile to install. The `complete` profile is recommended for most users.
+4. Select an installation profile to install. The `base` profile is recommended for most users.
 
    ![Installer](../../images/install/installer_2.png)
 
