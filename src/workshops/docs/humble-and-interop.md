@@ -57,7 +57,7 @@ Messages with identical definitions interoperate. Where a type grew fields betwe
 
 ## ROS 2 from the host
 
-Workshops share the `workshopbr0` LXD bridge with the host, and ROS 2 discovery (Fast DDS, `ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET`) reaches across it. A host with ROS 2 Jazzy installed (for example with the same `robotics-installer --profile complete`) can list, echo and visualize topics from a running workshop action.
+Workshops share the `workshopbr0` LXD bridge with the host, and ROS 2 discovery (Fast DDS, `ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET`) reaches across it. A host with ROS 2 Jazzy installed (for example with the same `robotics-installer --profile base`) can list, echo and visualize topics from a running workshop action.
 
 The ROS domain ID must match on both sides:
 
