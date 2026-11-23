@@ -12,8 +12,8 @@ set -a; . /etc/environment; set +a
 
 . /etc/os-release
 case "$VERSION_CODENAME" in
-  jammy) ROS_DISTRO=humble PROFILE=full ;;
-  noble) ROS_DISTRO=jazzy PROFILE=complete ;;
+  jammy) ROS_DISTRO=humble PROFILE=base ;;
+  noble) ROS_DISTRO=jazzy PROFILE=base ;;
   *) echo "robotics-ai-suite: unsupported base $VERSION_CODENAME" >&2; exit 1 ;;
 esac
 
