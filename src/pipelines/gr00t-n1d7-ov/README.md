@@ -40,7 +40,7 @@ uv sync --all-extras
 Alternatively, you can create a Python environment:
 ```bash
 python3 -m venv gr00t_env
-source pi_env/bin/activate
+source gr00t_env/bin/activate
 pip install -e . --extra-index https://download.pytorch.org/whl/cpu
 ```
 
